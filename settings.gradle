@@ -1,0 +1,6 @@
+rootProject.name = 'springcamp2017'
+include 'core'
+include 'member'
+include 'product'
+include 'order'
+

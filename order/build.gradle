@@ -1,0 +1,28 @@
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'order'
+    version = '0.0.1-SNAPSHOT'
+}
+
+repositories {
+    maven {
+        url "http://repo.hortonworks.com/content/repositories/releases/"
+    }
+}
+
+dependencies {
+    compile project(':core')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-web')
+
+    // for LocalDateTime ISO format to json
+    compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.6')
+
+    compile('org.apache.kafka:kafka-clients:0.9.0.2.4.2.12-1')
+    compile('org.apache.kafka:kafka_2.11:0.9.0.2.4.2.12-1')
+
+    compile('mysql:mysql-connector-java:5.1.31')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}

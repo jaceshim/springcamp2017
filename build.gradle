@@ -1,0 +1,81 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven { url 'http://repo.spring.io/plugins-release' }
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("io.spring.gradle:dependency-management-plugin:1.0.1.RELEASE")
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        //jcenter()
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'groovy'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    group = 'jace.shim.springcamp2017'
+    version = '1.0-SNAPSHOP'
+
+    ext {
+        slf4jVersion = '1.7.21'
+        logbackVersion = '1.1.7'
+    }
+
+    List loggers = [
+            "org.slf4j:slf4j-api:${slf4jVersion}",
+            "org.slf4j:jcl-over-slf4j:${slf4jVersion}",
+            "org.slf4j:log4j-over-slf4j:${slf4jVersion}",
+            "org.slf4j:jul-to-slf4j:${slf4jVersion}",
+            "ch.qos.logback:logback-core:${logbackVersion}",
+            "ch.qos.logback:logback-classic:${logbackVersion}"
+    ]
+
+    dependencies {
+        compile loggers
+        compile('org.projectlombok:lombok:1.16.12')
+        compile('org.yaml:snakeyaml:1.17')
+
+        // Guava
+        compile('com.google.guava:guava:21.0')
+
+        compile('com.google.code.gson:gson:2.8.0')
+
+
+        // Groovy
+        compile 'org.codehaus.groovy:groovy-all:2.4.7'
+
+        // junit
+        testCompile 'junit:junit:4.12'
+
+        // Spock
+        //testCompile 'org.springframework.boot:spring-boot-starter-test'
+        testCompile 'org.spockframework:spock-core:1.1-groovy-2.4-rc-3'
+        testCompile 'org.spockframework:spock-spring:1.1-groovy-2.4-rc-3'
+        testRuntime 'cglib:cglib-nodep:3.2.4'
+    }
+
+    // commons-logging, log4j, jul 의존성 제거
+    configurations {
+        all.collect { configuration ->
+            configuration.exclude group: 'commons-logging', module: 'commons-logging'
+            configuration.exclude group: 'log4j', module: 'log4j'
+            configuration.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+            configuration.exclude group: 'org.slf4j', module: 'slf4j-jcl'
+            configuration.exclude group: 'org.slf4j', module: 'slf4j-jdk14'
+        }
+    }
+}

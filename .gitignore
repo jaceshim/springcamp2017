@@ -8,3 +8,5 @@
 *.iws
 *.iml
 *.ipr%
+/product/build/
+/core/build/

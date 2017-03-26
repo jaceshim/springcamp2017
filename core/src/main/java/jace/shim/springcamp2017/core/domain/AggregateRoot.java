@@ -16,6 +16,8 @@ import java.util.List;
 @Slf4j
 public abstract class AggregateRoot<ID> implements Serializable {
 
+	private static final String APPLY_METHOD_NAME = "apply";
+
 	private ID identifier;
 
 	private List<Event> changeEvents = Lists.newArrayList();
@@ -42,35 +44,31 @@ public abstract class AggregateRoot<ID> implements Serializable {
 		return expectedVersion;
 	}
 
-	public void replay(List<Event> changes) throws EventApplyException {
+	public void replay(List<Event> changes) {
 		for (Event change : changes) {
 			applyChange(change, false);
 		}
 	}
 
-	protected void applyChange(Event change) throws EventApplyException {
+	protected void applyChange(Event change) {
 		applyChange(change, true);
 	}
 
-	private void applyChange(Event event, boolean isNew) throws EventApplyException {
+	private void applyChange(Event event, boolean isNew) {
 		Method method = null;
 		try {
-			method = this.getClass().getDeclaredMethod("apply", event.getClass());
-		} catch (NoSuchMethodException e) {
-			log.error(e.getMessage(), e);
-		}
-
-		if (method != null) {
-			method.setAccessible(true);
-			try {
+			method = this.getClass().getDeclaredMethod(APPLY_METHOD_NAME, event.getClass());
+			if (method != null) {
+				method.setAccessible(true);
 				method.invoke(this, event);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-				throw new EventApplyException(e.getMessage(), e);
 			}
-		}
 
-		if (isNew) {
-			changeEvents.add(event);
+			if (isNew) {
+				changeEvents.add(event);
+			}
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+			log.error(e.getMessage(), e);
+			throw new EventApplyException(e.getMessage(), e);
 		}
 	}
 }

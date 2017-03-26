@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,14 +33,12 @@ public class ProductEventStore implements EventStore<Long> {
 
 	@Override
 	public void saveEvents(final Long identifier, Long expectedVersion, final List<Event> events) {
-
-		List<RawEvent> rawEvents = Collections.EMPTY_LIST;
 		// 신규 등록된 aggregate가 아닌 경우 version확인 후 처리
 		if (expectedVersion > 0) {
-			rawEvents = productEventStoreRepository.findByIdentifer(identifier);
-			Long actualVersion = rawEvents.stream()
-				.sorted(Comparator.comparing(RawEvent::getVersion))
-				.findFirst().map(RawEvent::getVersion)
+			List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifer(identifier);
+			Long actualVersion = productRawEvents.stream()
+				.sorted(Comparator.comparing(ProductRawEvent::getVersion))
+				.findFirst().map(ProductRawEvent::getVersion)
 				.orElse(-1L);
 
 			if (expectedVersion != actualVersion) {
@@ -63,9 +60,9 @@ public class ProductEventStore implements EventStore<Long> {
 
 			expectedVersion++;
 			LocalDateTime now = LocalDateTime.now();
-			RawEvent rawEvent = new RawEvent(identifier, type, expectedVersion, payload, now);
+			ProductRawEvent productRawEvent = new ProductRawEvent(identifier, type, expectedVersion, payload, now);
 
-			productEventStoreRepository.save(rawEvent);
+			productEventStoreRepository.save(productRawEvent);
 
 			// event 발행
 			eventPublisher.publish(event);
@@ -73,25 +70,31 @@ public class ProductEventStore implements EventStore<Long> {
 	}
 
 	@Override
-	public List<Event> getEvents(Long identifier) {
-		final List<RawEvent> rawEvents = productEventStoreRepository.findByIdentifer(identifier);
-		return convertEvent(rawEvents);
+	public List<Event<Long>> getEvents(Long identifier) {
+		final List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifer(identifier);
+		return convertEvent(productRawEvents);
 	}
 
 	@Override
-	public List<Event> getEventsByAfterVersion(Long identifier, Long version) {
-		final List<RawEvent> rawEvents = productEventStoreRepository.findByIdentiferAndVersionGreaterThan(identifier, version);
-		return convertEvent(rawEvents);
+	public List<Event<Long>> getAllEvents() {
+		final List<ProductRawEvent> productRawEvents = productEventStoreRepository.findAll();
+		return convertEvent(productRawEvents);
 	}
 
-	private List<Event> convertEvent(List<RawEvent> rawEvents) {
-		return rawEvents.stream().map(rawEvent -> {
-			Event event = null;
+	@Override
+	public List<Event<Long>> getEventsByAfterVersion(Long identifier, Long version) {
+		final List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentiferAndVersionGreaterThan(identifier, version);
+		return convertEvent(productRawEvents);
+	}
+
+	private List<Event<Long>> convertEvent(List<ProductRawEvent> productRawEvents) {
+		return productRawEvents.stream().map(productRawEvent -> {
+			Event<Long> event = null;
 			try {
-				event = (Event) objectMapper.readValue(rawEvent.getPayload(), Class.forName(rawEvent.getType()));
+				event = (Event) objectMapper.readValue(productRawEvent.getPayload(), Class.forName(productRawEvent.getType()));
 			} catch (IOException | ClassNotFoundException e) {
-				String exceptionMessage = String.format("Event Object Convert Error : {} {}", rawEvent.getId(), rawEvent.getType(),
-					rawEvent.getPayload());
+				String exceptionMessage = String.format("Event Object Convert Error : {} {}", productRawEvent.getSeq(), productRawEvent.getType(),
+					productRawEvent.getPayload());
 				log.error(exceptionMessage, e);
 			}
 			return event;

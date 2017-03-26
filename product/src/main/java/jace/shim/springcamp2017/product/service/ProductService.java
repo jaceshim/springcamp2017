@@ -1,9 +1,10 @@
 package jace.shim.springcamp2017.product.service;
 
 import jace.shim.springcamp2017.core.exception.EventApplyException;
+import jace.shim.springcamp2017.product.exception.NotExistsProductException;
 import jace.shim.springcamp2017.product.infra.ProductEventHandler;
 import jace.shim.springcamp2017.product.model.Product;
-import jace.shim.springcamp2017.product.model.command.*;
+import jace.shim.springcamp2017.product.model.command.ProductCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,22 +25,24 @@ public class ProductService {
 	 * @param productCreateCommand
 	 * @return
 	 */
-	public Long add(ProductCreateCommand productCreateCommand) throws EventApplyException {
+	public Product createProduct(ProductCommand.CreateProduct productCreateCommand) {
 		Product product = Product.create(productCreateCommand);
 		// 이벤트 저장
 		eventRepository.save(product);
 
-		return product.getIdentifier();
+		return product;
 	}
 
 	/**
 	 * 상품명 변경
+	 *
+	 * @param productId
 	 * @param productChangeNameCommand
 	 * @return
 	 * @throws EventApplyException
 	 */
-	public Product changeName(ProductChangeNameCommand productChangeNameCommand) throws EventApplyException {
-		final Product product = eventRepository.find(productChangeNameCommand.getProductId());
+	public Product changeName(Long productId, ProductCommand.ChangeName productChangeNameCommand) {
+		final Product product = this.getProduct(productId);
 		product.changeName(productChangeNameCommand);
 
 		eventRepository.save(product);
@@ -53,8 +56,8 @@ public class ProductService {
 	 * @return
 	 * @throws EventApplyException
 	 */
-	public Product changePrice(ProductChangePriceCommand productChangePriceCommand) throws EventApplyException {
-		final Product product = eventRepository.find(productChangePriceCommand.getProductId());
+	public Product changePrice(Long productId, ProductCommand.ChangePrice productChangePriceCommand) {
+		final Product product = this.getProduct(productId);
 		product.changePrice(productChangePriceCommand);
 
 		eventRepository.save(product);
@@ -68,18 +71,24 @@ public class ProductService {
 	 * @param productId
 	 * @return
 	 */
-	public Product getProduct(Long productId) throws EventApplyException {
-		return eventRepository.find(productId);
+	public Product getProduct(Long productId) {
+		final Product product = eventRepository.find(productId);
+		if (product == null) {
+			throw new NotExistsProductException(productId + "is not exists.");
+		}
+		return product;
 	}
 
 	/**
 	 * 상품 수량 증가 처리
+	 *
+	 * @param productId
 	 * @param productIncreaseQuantityCommand
 	 * @return
 	 * @throws EventApplyException
 	 */
-	public Product increaseQuantity(ProductIncreaseQuantityCommand productIncreaseQuantityCommand) throws EventApplyException {
-		final Product product = eventRepository.find(productIncreaseQuantityCommand.getProductId());
+	public Product increaseQuantity(Long productId, ProductCommand.IncreaseQuantity productIncreaseQuantityCommand) {
+		final Product product = this.getProduct(productId);
 		product.increaseQuantity(productIncreaseQuantityCommand);
 
 		eventRepository.save(product);
@@ -89,12 +98,14 @@ public class ProductService {
 
 	/**
 	 * 상품 수량 감소 처리
+	 *
+	 * @param productId
 	 * @param productDecreaseQuantityCommand
 	 * @return
 	 * @throws EventApplyException
 	 */
-	public Product decreaseQuantity(ProductDecreaseQuantityCommand productDecreaseQuantityCommand) throws EventApplyException {
-		final Product product = eventRepository.find(productDecreaseQuantityCommand.getProductId());
+	public Product decreaseQuantity(Long productId, ProductCommand.DecreaseQuantity productDecreaseQuantityCommand) {
+		final Product product = this.getProduct(productId);
 		product.decreaseQuantity(productDecreaseQuantityCommand);
 
 		eventRepository.save(product);

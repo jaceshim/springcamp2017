@@ -31,7 +31,7 @@ public class Product extends AggregateRoot<Long> {
 		super(identifier);
 	}
 
-	public Product(Long productId, String name, int price, int quantity, String description) throws EventApplyException {
+	public Product(Long productId, String name, int price, int quantity, String description) {
 		super(productId);
 		applyChange(new ProductCreated(productId, name, price, quantity, description));
 	}
@@ -43,7 +43,7 @@ public class Product extends AggregateRoot<Long> {
 	 * @return
 	 * @throws EventApplyException
 	 */
-	public static Product create(ProductCreateCommand productCreateCommand) throws EventApplyException {
+	public static Product create(ProductCommand.CreateProduct productCreateCommand) {
 		Long productId = createProductId();
 		Product product = new Product(productId, productCreateCommand.getName(), productCreateCommand.getPrice(), productCreateCommand.getQuantity(),
 			productCreateCommand.getDescription());
@@ -66,7 +66,7 @@ public class Product extends AggregateRoot<Long> {
 	 *
 	 * @param event
 	 */
-	public void apply(ProductCreated event) { // // TODO: 2017. 3. 10. 이벤트 객체를 통으로 object로 변환 ( identifer와 version, type, 등을 어떻게 처리 할지는 고민
+	public void apply(ProductCreated event) {
 		this.name = event.getName();
 		this.price = event.getPrice();
 		this.quantity = event.getQuantity();
@@ -80,7 +80,7 @@ public class Product extends AggregateRoot<Long> {
 	 * @param productChangeNameCommand
 	 * @throws EventApplyException
 	 */
-	public void changeName(ProductChangeNameCommand productChangeNameCommand) throws EventApplyException {
+	public void changeName(ProductCommand.ChangeName productChangeNameCommand) {
 		this.name = productChangeNameCommand.getName();
 		applyChange(new ProductNameChanged(this.getIdentifier(), this.getName()));
 	}
@@ -94,7 +94,11 @@ public class Product extends AggregateRoot<Long> {
 		this.updated = event.getUpdated();
 	}
 
-	public void changePrice(ProductChangePriceCommand productChangePriceCommand) throws EventApplyException {
+	/**
+	 * 상품 가격 변경
+	 * @param productChangePriceCommand
+	 */
+	public void changePrice(ProductCommand.ChangePrice productChangePriceCommand) {
 		this.price = productChangePriceCommand.getPrice();
 		applyChange(new ProductPriceChanged(this.getIdentifier(), this.getPrice()));
 	}
@@ -109,7 +113,7 @@ public class Product extends AggregateRoot<Long> {
 	 * @param productIncreaseQuantityCommand
 	 * @throws EventApplyException
 	 */
-	public void increaseQuantity(ProductIncreaseQuantityCommand productIncreaseQuantityCommand) throws EventApplyException {
+	public void increaseQuantity(ProductCommand.IncreaseQuantity productIncreaseQuantityCommand) {
 		this.quantity = (this.getQuantity() + productIncreaseQuantityCommand.getQuantity());
 		applyChange(new ProductQuantityIncreased(this.getIdentifier(), this.getQuantity()));
 	}
@@ -124,7 +128,7 @@ public class Product extends AggregateRoot<Long> {
 	 * @param productDecreaseQuantityCommand
 	 * @throws EventApplyException
 	 */
-	public void decreaseQuantity(ProductDecreaseQuantityCommand productDecreaseQuantityCommand) throws EventApplyException {
+	public void decreaseQuantity(ProductCommand.DecreaseQuantity productDecreaseQuantityCommand) {
 		if (this.getQuantity() < productDecreaseQuantityCommand.getQuantity()) {
 			throw new IllegalStateException("재고 수량이 부족합니다.");
 		}

@@ -21,7 +21,13 @@ public interface EventStore<ID> {
 	 * @param identifier
 	 * @return
 	 */
-	List<Event> getEvents(ID identifier);
+	List<Event<ID>> getEvents(ID identifier);
+
+	/**
+	 * 저장된 모든 이벤트를 조회한다
+	 * @return
+	 */
+	List<Event<ID>> getAllEvents();
 
 	/**
 	 * 주어진 identifier의 저장된 이벤트중 주어진 version이후 이벤트를 얻는다
@@ -29,7 +35,7 @@ public interface EventStore<ID> {
 	 * @param version
 	 * @return
 	 */
-	List<Event> getEventsByAfterVersion(ID identifier, Long version);
+	List<Event<ID>> getEventsByAfterVersion(ID identifier, Long version);
 
 
 }

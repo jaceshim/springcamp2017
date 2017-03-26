@@ -3,7 +3,7 @@ package jace.shim.springcamp2017.core.exception;
 /**
  * Created by jaceshim on 2017. 3. 10..
  */
-public class EventApplyException extends Exception {
+public class EventApplyException extends RuntimeException {
 	public EventApplyException() {
 	}
 

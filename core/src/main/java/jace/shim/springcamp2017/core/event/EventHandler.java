@@ -1,7 +1,8 @@
 package jace.shim.springcamp2017.core.event;
 
 import jace.shim.springcamp2017.core.domain.AggregateRoot;
-import jace.shim.springcamp2017.core.exception.EventApplyException;
+
+import java.util.List;
 
 /**
  * Created by jaceshim on 2017. 3. 3..
@@ -21,5 +22,11 @@ public interface EventHandler<A extends AggregateRoot, ID> {
 	 * @param identify
 	 * @return
 	 */
-	A find(ID identify) throws EventApplyException;
+	A find(ID identify);
+
+	/**
+	 * Get the All aggregate
+	 * @return
+	 */
+	List<A> findAll();
 }

@@ -8,6 +8,7 @@
 		</layout>
 	</appender>
 
+	<!--
 	<appender name="dailyRollingFileAppender"
 			  class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<prudent>true</prudent>
@@ -20,10 +21,10 @@
 		</filter>
 
 		<encoder>
-			<pattern>%d{yyyy:MM:dd HH:mm:ss.SSS} %-5level --- [%thread] %logger{35} : %msg %n</pattern>
+			<pattern>%d{yyyy:MM:dd HH:mm:ss.SSS} %-5level  [%thread] %logger{35} : %msg %n</pattern>
 		</encoder>
 	</appender>
-
+	-->
 	<logger name="org.springframework.web" level="INFO"/>
 	<logger name="rg.hibernate.SQL" level="INFO"/>
 	<logger name="jace.shim.springcamp2017" level="DEBUG"/>

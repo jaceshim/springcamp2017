@@ -1,15 +1,18 @@
 package jace.shim.springcamp2017.core.event;
 
 import jace.shim.springcamp2017.core.domain.AggregateRoot;
-import jace.shim.springcamp2017.core.exception.EventApplyException;
 import jace.shim.springcamp2017.core.snapshot.Snapshot;
 import jace.shim.springcamp2017.core.snapshot.SnapshotRepository;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static java.util.stream.Collectors.groupingBy;
 
 /**
  * Created by jaceshim on 2017. 3. 5..
@@ -18,7 +21,7 @@ public abstract class BaseEventHandler<A extends AggregateRoot, ID> implements E
 
 	private final Class aggregateType;
 
-	private EventStore eventStore;
+	private EventStore<ID> eventStore;
 
 	private SnapshotRepository<A, ID> snapshotRepository;
 
@@ -52,20 +55,21 @@ public abstract class BaseEventHandler<A extends AggregateRoot, ID> implements E
 
 	@Override
 	public void save(A aggregateRoot) {
+		final ID identifier = (ID) aggregateRoot.getIdentifier();
 		// 이벤트 저장소에 이벤트 저장
-		eventStore.saveEvents(aggregateRoot.getIdentifier(), aggregateRoot.getExpectedVersion(), aggregateRoot.getUncommittedChanges());
+		eventStore.saveEvents(identifier, aggregateRoot.getExpectedVersion(), aggregateRoot.getUncommittedChanges());
 		// 미처리된 이벤트 목록 clear
 		aggregateRoot.markChangesAsCommitted();
 		// TODO: 2017. 3. 9.snapshot을 어떤 기준으로 생성할까?? ( count or time )
 	}
 
 	@Override
-	public A find(ID identifier) throws EventApplyException {
+	public A find(ID identifier) {
 		// snapshot저장소에서 호출함
 		A aggregateRoot = createAggregateRootViaReflection(identifier);
 
 		Optional<Snapshot<A, ID>> retrieveSnapshot = retrieveSnapshot(identifier);
-		List<Event> baseEvents;
+		List<Event<ID>> baseEvents;
 		if (retrieveSnapshot.isPresent()) {
 			Snapshot<A, ID> snapshot = retrieveSnapshot.get();
 			baseEvents = eventStore.getEventsByAfterVersion(snapshot.getIdentifier(), snapshot.getVersion());
@@ -80,6 +84,29 @@ public abstract class BaseEventHandler<A extends AggregateRoot, ID> implements E
 		return aggregateRoot;
 	}
 
+	@Override
+	public List<A> findAll() {
+		List<A> result = new ArrayList<>();
+
+		final Optional<List<Event<ID>>> allEventsOpt = Optional.ofNullable(eventStore.getAllEvents());
+		allEventsOpt.ifPresent(allEvents -> {
+			final Map<ID, List<Event<ID>>> eventsByIdentifier = allEvents.stream().collect(groupingBy(Event::getIdentifier));
+			for (Map.Entry<ID, List<Event<ID>>> entry : eventsByIdentifier.entrySet()) {
+				A aggregateRoot = createAggregateRootViaReflection(entry.getKey());
+				aggregateRoot.replay(entry.getValue());
+
+				result.add(aggregateRoot);
+			}
+		});
+
+		return result;
+	}
+
+	/**
+	 * Get the snapshot
+	 * @param identifier
+	 * @return
+	 */
 	private Optional<Snapshot<A, ID>> retrieveSnapshot(ID identifier) {
 		if (snapshotRepository == null) {
 			return Optional.empty();

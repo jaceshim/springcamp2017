@@ -9,9 +9,9 @@ import java.util.List;
  * Created by jaceshim on 2017. 3. 14..
  */
 @Repository
-public interface ProductEventStoreRepository extends JpaRepository<RawEvent, Long> {
+public interface ProductEventStoreRepository extends JpaRepository<ProductRawEvent, Long> {
 
-	List<RawEvent> findByIdentifer(Long identifier);
+	List<ProductRawEvent> findByIdentifer(Long identifier);
 
-	List<RawEvent> findByIdentiferAndVersionGreaterThan(Long identifier, Long version);
+	List<ProductRawEvent> findByIdentiferAndVersionGreaterThan(Long identifier, Long version);
 }

@@ -1,6 +1,5 @@
 package jace.shim.springcamp2017.product.model.event;
 
-import jace.shim.springcamp2017.core.event.Event;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -9,18 +8,12 @@ import java.time.LocalDateTime;
  * Created by jaceshim on 2017. 3. 17..
  */
 @Getter
-public class ProductPriceChanged implements Event {
-	private Long productId;
-
+public class ProductPriceChanged extends AbstractProductEvent {
 	private int price;
-
 	private LocalDateTime updated;
 
-	public ProductPriceChanged() {
-	}
-
-	public ProductPriceChanged(Long identifier, int price) {
-		this.productId = identifier;
+	public ProductPriceChanged(Long productId, int price) {
+		super(productId);
 		this.price = price;
 		this.updated = LocalDateTime.now();
 	}

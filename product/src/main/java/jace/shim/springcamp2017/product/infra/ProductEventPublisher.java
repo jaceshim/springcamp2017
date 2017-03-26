@@ -5,10 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.core.event.Event;
 import jace.shim.springcamp2017.core.event.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -19,14 +18,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ProductEventPublisher implements EventPublisher {
 
-	@Value("${product.kafka.topic}")
-	String productKafkaTopic;
-
 	@Autowired
 	private ObjectMapper objectMapper;
 
 	@Autowired
-	private KafkaProducer<String, String> productEventProducer;
+	KafkaTemplate<String, String> kafkaTemplate;
+
+	@Value("${kafka.bootstrap.servers}")
+	private String kafkaBootstrapServers;
+
+	@Value("${kafka.product.topic}")
+	private String productKafkaTopic;
 
 	@Async
 	@Override
@@ -37,11 +39,8 @@ public class ProductEventPublisher implements EventPublisher {
 
 		try {
 			final String sendMessage = objectMapper.writeValueAsString(event);
-			final ProducerRecord<String, String> producerRecord = new ProducerRecord<>(this.productKafkaTopic, sendMessage);
-			productEventProducer.send(producerRecord);
+			kafkaTemplate.send(productKafkaTopic, sendMessage);
 			log.debug("{} 전송 완료  - {}", this.productKafkaTopic, sendMessage);
-
-			productEventProducer.send(producerRecord);
 		} catch (final JsonProcessingException e) {
 			log.error(e.getMessage(), e);
 		}

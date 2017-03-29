@@ -18,6 +18,8 @@ public final class ProductCommand implements Command {
 	@Getter
 	@NoArgsConstructor
 	public static class CreateProduct {
+		/** 상품 아이디 */
+		private Long productId;
 		/** 상품 명 */
 		@NotNull @Size(min = 1)
 		private String name;
@@ -30,7 +32,8 @@ public final class ProductCommand implements Command {
 		/** 상품 설명 */
 		private String description;
 
-		public CreateProduct(String name, int price, int quantity, String description) {
+		public CreateProduct(Long productId, String name, int price, int quantity, String description) {
+			this.productId = productId;
 			this.name = name;
 			this.price = price;
 			this.quantity = quantity;

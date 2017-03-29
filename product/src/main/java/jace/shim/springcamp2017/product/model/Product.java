@@ -2,6 +2,7 @@ package jace.shim.springcamp2017.product.model;
 
 import jace.shim.springcamp2017.core.domain.AggregateRoot;
 import jace.shim.springcamp2017.core.exception.EventApplyException;
+import jace.shim.springcamp2017.product.exception.InsufficientInventoryQuantityException;
 import jace.shim.springcamp2017.product.model.command.*;
 import jace.shim.springcamp2017.product.model.event.*;
 import lombok.Getter;
@@ -13,7 +14,8 @@ import java.time.LocalDateTime;
  */
 @Getter
 public class Product extends AggregateRoot<Long> {
-
+	/** 상품 아이디 */
+	private Long productId;
 	/** 상품 명 */
 	private String name;
 	/** 상품 가격 */
@@ -27,8 +29,9 @@ public class Product extends AggregateRoot<Long> {
 	/** 상품 수정일시 */
 	private LocalDateTime updated;
 
-	public Product(Long identifier) {
-		super(identifier);
+	public Product(Long productId) {
+		super(productId);
+		this.productId = productId;
 	}
 
 	public Product(Long productId, String name, int price, int quantity, String description) {
@@ -43,8 +46,7 @@ public class Product extends AggregateRoot<Long> {
 	 * @return
 	 * @throws EventApplyException
 	 */
-	public static Product create(ProductCommand.CreateProduct productCreateCommand) {
-		Long productId = createProductId();
+	public static Product create(Long productId, ProductCommand.CreateProduct productCreateCommand) {
 		Product product = new Product(productId, productCreateCommand.getName(), productCreateCommand.getPrice(), productCreateCommand.getQuantity(),
 			productCreateCommand.getDescription());
 
@@ -67,6 +69,7 @@ public class Product extends AggregateRoot<Long> {
 	 * @param event
 	 */
 	public void apply(ProductCreated event) {
+		this.productId = event.getProductId();
 		this.name = event.getName();
 		this.price = event.getPrice();
 		this.quantity = event.getQuantity();
@@ -81,8 +84,7 @@ public class Product extends AggregateRoot<Long> {
 	 * @throws EventApplyException
 	 */
 	public void changeName(ProductCommand.ChangeName productChangeNameCommand) {
-		this.name = productChangeNameCommand.getName();
-		applyChange(new ProductNameChanged(this.getIdentifier(), this.getName()));
+		applyChange(new ProductNameChanged(this.getProductId(), productChangeNameCommand.getName()));
 	}
 
 	/**
@@ -99,10 +101,13 @@ public class Product extends AggregateRoot<Long> {
 	 * @param productChangePriceCommand
 	 */
 	public void changePrice(ProductCommand.ChangePrice productChangePriceCommand) {
-		this.price = productChangePriceCommand.getPrice();
-		applyChange(new ProductPriceChanged(this.getIdentifier(), this.getPrice()));
+		applyChange(new ProductPriceChanged(this.getProductId(), productChangePriceCommand.getPrice()));
 	}
 
+	/**
+	 * 상품 가격 변경 이벤트 반영
+	 * @param event
+	 */
 	public void apply(ProductPriceChanged event) {
 		this.price = event.getPrice();
 		this.updated = event.getUpdated();
@@ -114,12 +119,15 @@ public class Product extends AggregateRoot<Long> {
 	 * @throws EventApplyException
 	 */
 	public void increaseQuantity(ProductCommand.IncreaseQuantity productIncreaseQuantityCommand) {
-		this.quantity = (this.getQuantity() + productIncreaseQuantityCommand.getQuantity());
-		applyChange(new ProductQuantityIncreased(this.getIdentifier(), this.getQuantity()));
+		applyChange(new ProductQuantityIncreased(this.getProductId(), productIncreaseQuantityCommand.getQuantity()));
 	}
 
+	/**
+	 * 상품 판매수량 증가 이벤트 반영
+	 * @param event
+	 */
 	public void apply(ProductQuantityIncreased event) {
-		this.quantity = event.getQuantity();
+		this.quantity = this.getQuantity() + event.getQuantity();
 		this.updated = event.getUpdated();
 	}
 
@@ -130,15 +138,17 @@ public class Product extends AggregateRoot<Long> {
 	 */
 	public void decreaseQuantity(ProductCommand.DecreaseQuantity productDecreaseQuantityCommand) {
 		if (this.getQuantity() < productDecreaseQuantityCommand.getQuantity()) {
-			throw new IllegalStateException("재고 수량이 부족합니다.");
+			throw new InsufficientInventoryQuantityException(this.getProductId() + " is not insufficient inventory quantity");
 		}
-
-		this.quantity = (this.getQuantity() - productDecreaseQuantityCommand.getQuantity());
-		applyChange(new ProductQuantityDecreased(this.getIdentifier(), this.getQuantity()));
+		applyChange(new ProductQuantityDecreased(this.getProductId(), productDecreaseQuantityCommand.getQuantity()));
 	}
 
+	/**
+	 * 상품 판매수량 감소 이벤트 반영
+	 * @param event
+	 */
 	public void apply(ProductQuantityDecreased event) {
-		this.quantity = event.getQuantity();
+		this.quantity = this.getQuantity() - event.getQuantity();
 		this.updated = event.getUpdated();
 	}
 }

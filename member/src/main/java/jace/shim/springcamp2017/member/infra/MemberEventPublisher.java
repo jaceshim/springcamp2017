@@ -2,7 +2,6 @@ package jace.shim.springcamp2017.member.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jace.shim.springcamp2017.core.event.Event;
 import jace.shim.springcamp2017.core.event.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class MemberEventPublisher implements EventPublisher {
+public class MemberEventPublisher implements EventPublisher<MemberRawEvent> {
 
 	@Value("${kafka.member.topic}")
 	String memberKafkaTopic;
@@ -32,13 +31,13 @@ public class MemberEventPublisher implements EventPublisher {
 
 	@Async
 	@Override
-	public void publish(Event event) {
-		if (event == null) {
+	public void publish(MemberRawEvent rawEvent) {
+		if (rawEvent == null) {
 			return;
 		}
 
 		try {
-			final String sendMessage = objectMapper.writeValueAsString(event);
+			final String sendMessage = objectMapper.writeValueAsString(rawEvent);
 			kafkaTemplate.send(memberKafkaTopic, sendMessage);
 			log.debug("{} 전송 완료  - {}", this.memberKafkaTopic, sendMessage);
 		} catch (final JsonProcessingException e) {

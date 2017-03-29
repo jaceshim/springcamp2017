@@ -3,3 +3,13 @@ jar {
     baseName = 'core'
     version = '0.0.1-SNAPSHOT'
 }
+
+dependencies {
+    ext {
+        jacksonVersion = '2.8.0'
+    }
+
+    compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+    compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+}
+

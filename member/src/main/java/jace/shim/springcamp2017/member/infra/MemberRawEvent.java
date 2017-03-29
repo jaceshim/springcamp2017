@@ -26,8 +26,8 @@ public class MemberRawEvent implements RawEvent<String> {
 	private Long seq;
 
 	/**  이벤트 식별자 */
-	@Column(name = "identifer", nullable = false)
-	private String identifer;
+	@Column(name = "identifier", nullable = false)
+	private String identifier;
 
 	/** 이벤트 유형 */
 	@Column(name = "type", nullable = false)
@@ -46,8 +46,8 @@ public class MemberRawEvent implements RawEvent<String> {
 	@Type(type = "jace.shim.springcamp2017.member.infra.LocalDateTimeUserType")
 	private LocalDateTime created;
 
-	public MemberRawEvent(String identifer, String type, Long version, String payload, LocalDateTime created) {
-		this.identifer = identifer;
+	public MemberRawEvent(String identifier, String type, Long version, String payload, LocalDateTime created) {
+		this.identifier = identifier;
 		this.type = type;
 		this.version = version;
 		this.payload = payload;

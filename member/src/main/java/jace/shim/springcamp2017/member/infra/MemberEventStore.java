@@ -3,6 +3,7 @@ package jace.shim.springcamp2017.member.infra;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.core.event.Event;
+import jace.shim.springcamp2017.core.event.EventListener;
 import jace.shim.springcamp2017.core.event.EventPublisher;
 import jace.shim.springcamp2017.core.event.EventStore;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,17 +31,20 @@ public class MemberEventStore implements EventStore<String> {
 	@Autowired
 	private EventPublisher eventPublisher;
 
+	@Autowired
+	private EventListener eventListener;
+
 	@Override
 	public void saveEvents(final String identifier, Long expectedVersion, final List<Event> events) {
-		// 신규 등록된 aggregate가 아닌 경우 version확인 후 처리
+		// 신규 등록이 아닌 경우 version확인 후 처리
 		if (expectedVersion > 0) {
-			List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentifer(identifier);
+			List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentifier(identifier);
 			Long actualVersion = memberRawEvents.stream()
-				.sorted(Comparator.comparing(MemberRawEvent::getVersion))
+				.sorted((e1, e2) -> Long.compare(e2.getVersion(), e1.getVersion()))
 				.findFirst().map(MemberRawEvent::getVersion)
-				.orElse(null);
+				.orElse(-1L);
 
-			if (expectedVersion != actualVersion) {
+			if (! expectedVersion.equals(actualVersion)) {
 				String exceptionMessage = String.format("Unmatched Version : expected: {}, actual: {}", expectedVersion, actualVersion);
 				throw new IllegalStateException(exceptionMessage);
 			}
@@ -58,20 +61,27 @@ public class MemberEventStore implements EventStore<String> {
 				log.error(e.getMessage(), e);
 			}
 
-			expectedVersion++;
+			expectedVersion = increaseVersion(expectedVersion);
 			LocalDateTime now = LocalDateTime.now();
 			MemberRawEvent memberRawEvent = new MemberRawEvent(identifier, type, expectedVersion, payload, now);
 
 			memberEventStoreRepository.save(memberRawEvent);
 
 			// event 발행
-			eventPublisher.publish(event);
+			eventPublisher.publish(memberRawEvent);
+
+			// event project
+			eventListener.handle(event);
 		}
+	}
+
+	private Long increaseVersion(Long expectedVersion) {
+		return ++expectedVersion;
 	}
 
 	@Override
 	public List<Event<String>> getEvents(String identifier) {
-		final List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentifer(identifier);
+		final List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentifier(identifier);
 		return convertEvent(memberRawEvents);
 	}
 
@@ -83,18 +93,19 @@ public class MemberEventStore implements EventStore<String> {
 
 	@Override
 	public List<Event<String>> getEventsByAfterVersion(String identifier, Long version) {
-		final List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentiferAndVersionGreaterThan(identifier, version);
+		final List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentifierAndVersionGreaterThan(identifier, version);
 		return convertEvent(memberRawEvents);
 	}
 
 	private List<Event<String>> convertEvent(List<MemberRawEvent> memberRawEvents) {
-		return memberRawEvents.stream().map(memberRawEvent -> {
+		return memberRawEvents.stream().map(rawEvent -> {
 			Event<String> event = null;
 			try {
-				event = (Event) objectMapper.readValue(memberRawEvent.getPayload(), Class.forName(memberRawEvent.getType()));
+				log.debug("-> event info : {}", rawEvent.toString());
+				event = (Event) objectMapper.readValue(rawEvent.getPayload(), Class.forName(rawEvent.getType()));
 			} catch (IOException | ClassNotFoundException e) {
-				String exceptionMessage = String.format("Event Object Convert Error : {} {}", memberRawEvent.getSeq(), memberRawEvent.getType(),
-					memberRawEvent.getPayload());
+				String exceptionMessage = String.format("Event Object Convert Error : {} {}", rawEvent.getIdentifier(), rawEvent.getType(),
+					rawEvent.getPayload());
 				log.error(exceptionMessage, e);
 			}
 			return event;

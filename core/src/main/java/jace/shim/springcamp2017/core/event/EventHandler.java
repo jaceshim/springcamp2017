@@ -19,10 +19,10 @@ public interface EventHandler<A extends AggregateRoot, ID> {
 	/**
 	 * Get the aggregate
 	 *
-	 * @param identify
+	 * @param identifier
 	 * @return
 	 */
-	A find(ID identify);
+	A find(ID identifier);
 
 	/**
 	 * Get the All aggregate

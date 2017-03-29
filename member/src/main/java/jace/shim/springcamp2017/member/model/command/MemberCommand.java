@@ -42,7 +42,8 @@ public final class MemberCommand implements Command {
 		@Size(min=10)
 		private String address;
 
-		public CreateMember(String name, String email, String password, String address) {
+		public CreateMember(String id, String name, String email, String password, String address) {
+			this.id = id;
 			this.name = name;
 			this.email = email;
 			this.password = password;
@@ -108,5 +109,16 @@ public final class MemberCommand implements Command {
 		}
 	}
 
+	@Getter
+	@NoArgsConstructor
+	public static class ChangeWithdrawal {
+		/**
+		 * 회원 탈퇴 여부
+		 */
+		private boolean withdrawal;
 
+		public ChangeWithdrawal(boolean withdrawal) {
+			this.withdrawal = withdrawal;
+		}
+	}
 }

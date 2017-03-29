@@ -1,5 +1,6 @@
 package jace.shim.springcamp2017.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import jace.shim.springcamp2017.core.event.Event;
 import jace.shim.springcamp2017.core.exception.EventApplyException;
@@ -14,6 +15,7 @@ import java.util.List;
  * Created by jaceshim on 2017. 3. 5..
  */
 @Slf4j
+@JsonIgnoreProperties({"identifier", "expectedVersion", "uncommittedChanges"})
 public abstract class AggregateRoot<ID> implements Serializable {
 
 	private static final String APPLY_METHOD_NAME = "apply";
@@ -47,6 +49,7 @@ public abstract class AggregateRoot<ID> implements Serializable {
 	public void replay(List<Event> changes) {
 		for (Event change : changes) {
 			applyChange(change, false);
+			this.expectedVersion++;
 		}
 	}
 
@@ -55,7 +58,7 @@ public abstract class AggregateRoot<ID> implements Serializable {
 	}
 
 	private void applyChange(Event event, boolean isNew) {
-		Method method = null;
+		Method method;
 		try {
 			method = this.getClass().getDeclaredMethod(APPLY_METHOD_NAME, event.getClass());
 			if (method != null) {

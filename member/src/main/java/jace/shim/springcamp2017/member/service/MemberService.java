@@ -33,12 +33,8 @@ public class MemberService {
 			throw new DuplicateMemberIdException(memberCreateCommand.getId() + " is already registered.");
 		}
 
-		final List<Member> members = eventRepository.findAll();
-		final long duplicatedEmailCount = members.stream()
-			.filter(member -> member.getEmail().equals(memberCreateCommand.getEmail())).count();
-
-		if (duplicatedEmailCount > 0) {
-			throw new DuplicateMemberEmailException(memberCreateCommand.getId() + " is already registered.");
+		if (isDuplicateEmail(memberCreateCommand.getEmail())) {
+			throw new DuplicateMemberEmailException(memberCreateCommand.getEmail() + " is already registered.");
 		}
 
 		Member member = Member.create(memberCreateCommand);
@@ -84,6 +80,10 @@ public class MemberService {
 	 * @return
 	 */
 	public Member changeEmail(String id, MemberCommand.ChangeEmail memberChangeEmailCommand) {
+		if (isDuplicateEmail(memberChangeEmailCommand.getEmail())) {
+			throw new DuplicateMemberEmailException(memberChangeEmailCommand.getEmail() + " is already registered.");
+		}
+
 		final Member member = getMember(id);
 		member.changeEmail(memberChangeEmailCommand);
 
@@ -120,5 +120,36 @@ public class MemberService {
 		eventRepository.save(member);
 
 		return member;
+	}
+
+	/**
+	 * 회원 탈퇴여부 변경
+	 * @param id
+	 * @param memberChangeWithdrawalCommand
+	 * @return
+	 */
+	public Member changeWithdrawal(String id, MemberCommand.ChangeWithdrawal memberChangeWithdrawalCommand) {
+		final Member member = getMember(id);
+		member.changeWithdrawal(memberChangeWithdrawalCommand);
+
+		eventRepository.save(member);
+
+		return member;
+	}
+
+	/**
+	 * 이메일 중복 확인
+	 * @param email
+	 * @return
+	 */
+	private boolean isDuplicateEmail(String email) {
+		final List<Member> members = eventRepository.findAll();
+		final long duplicatedEmailCount = members.stream()
+			.filter(member -> member.getEmail().equals(email)).count();
+
+		if (duplicatedEmailCount > 0) {
+			return true;
+		}
+		return false;
 	}
 }

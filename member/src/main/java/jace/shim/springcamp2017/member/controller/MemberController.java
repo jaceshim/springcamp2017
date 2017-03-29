@@ -96,6 +96,20 @@ public class MemberController {
 		return new ResponseEntity<>(member, HttpStatus.OK);
 	}
 
+	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST,
+		params = "type=changeWithdrawal",
+		produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Member> changeWithdrawal(@PathVariable final String id,
+		@RequestBody @Valid MemberCommand.ChangeWithdrawal memberChangeWithdrawalCommand, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			throw new InvalidRequestException("Invalid Parameter!", bindingResult);
+		}
+
+		final Member member = memberService.changeWithdrawal(id, memberChangeWithdrawalCommand);
+
+		return new ResponseEntity<>(member, HttpStatus.OK);
+	}
+
 	@ExceptionHandler(InvalidRequestException.class)
 	public ResponseEntity handleInvalidRequest(InvalidRequestException exception) {
 		List<FieldError> fieldErrors = exception.getErrors().getFieldErrors();

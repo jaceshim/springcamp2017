@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.groupingBy;
 /**
  * Created by jaceshim on 2017. 3. 5..
  */
-public abstract class BaseEventHandler<A extends AggregateRoot, ID> implements EventHandler<A, ID> {
+public abstract class AbstractEventHandler<A extends AggregateRoot, ID> implements EventHandler<A, ID> {
 
 	private final Class aggregateType;
 
@@ -25,7 +25,7 @@ public abstract class BaseEventHandler<A extends AggregateRoot, ID> implements E
 
 	private SnapshotRepository<A, ID> snapshotRepository;
 
-	public BaseEventHandler(EventStore eventStore, SnapshotRepository snapshotRepository) {
+	public AbstractEventHandler(EventStore eventStore, SnapshotRepository snapshotRepository) {
 		this.eventStore = eventStore;
 		this.snapshotRepository = snapshotRepository;
 		this.aggregateType = aggregateType();
@@ -79,6 +79,10 @@ public abstract class BaseEventHandler<A extends AggregateRoot, ID> implements E
 			baseEvents = eventStore.getEvents(identifier);
 		}
 
+		if (baseEvents == null || baseEvents.size() == 0) {
+			return null;
+		}
+
 		aggregateRoot.replay(baseEvents);
 
 		return aggregateRoot;
@@ -88,16 +92,18 @@ public abstract class BaseEventHandler<A extends AggregateRoot, ID> implements E
 	public List<A> findAll() {
 		List<A> result = new ArrayList<>();
 
-		final Optional<List<Event<ID>>> allEventsOpt = Optional.ofNullable(eventStore.getAllEvents());
-		allEventsOpt.ifPresent(allEvents -> {
-			final Map<ID, List<Event<ID>>> eventsByIdentifier = allEvents.stream().collect(groupingBy(Event::getIdentifier));
-			for (Map.Entry<ID, List<Event<ID>>> entry : eventsByIdentifier.entrySet()) {
-				A aggregateRoot = createAggregateRootViaReflection(entry.getKey());
-				aggregateRoot.replay(entry.getValue());
+		final List<Event<ID>> allEventsOpt = eventStore.getAllEvents();
+		if (allEventsOpt == null) {
+			return result;
+		}
 
-				result.add(aggregateRoot);
-			}
-		});
+		final Map<ID, List<Event<ID>>> eventsByIdentifier = allEventsOpt.stream().collect(groupingBy(Event::getIdentifier));
+		for (Map.Entry<ID, List<Event<ID>>> entry : eventsByIdentifier.entrySet()) {
+			A aggregateRoot = createAggregateRootViaReflection(entry.getKey());
+			aggregateRoot.replay(entry.getValue());
+
+			result.add(aggregateRoot);
+		}
 
 		return result;
 	}

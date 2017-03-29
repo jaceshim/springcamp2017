@@ -1,6 +1,7 @@
 package jace.shim.springcamp2017.product.model.event;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
  * Created by jaceshim on 2017. 3. 5..
  */
 @Getter
+@NoArgsConstructor
 public class ProductCreated extends AbstractProductEvent {
 	/** 상품 명 */
 	private String name;
@@ -21,7 +23,7 @@ public class ProductCreated extends AbstractProductEvent {
 	private LocalDateTime created;
 
 	public ProductCreated(Long productId, String name, int price, int quantity, String description) {
-		super(productId);
+		this.productId = productId;
 		this.name = name;
 		this.price = price;
 		this.quantity = quantity;

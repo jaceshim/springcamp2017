@@ -26,6 +26,7 @@ public class KafkaConfig {
 	@Value("${kafka.bootstrap.servers}")
 	private String kafkaBootstrapServers;
 
+
 	@Bean
 	ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
 		ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -48,11 +49,6 @@ public class KafkaConfig {
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
 
 		return props;
-	}
-
-	@Bean
-	public KafkaListener kafkaListener() {
-		return new KafkaListener();
 	}
 
 	@Bean

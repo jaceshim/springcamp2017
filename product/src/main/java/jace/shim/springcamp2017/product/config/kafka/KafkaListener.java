@@ -12,12 +12,12 @@ public class KafkaListener {
 
 	private final CountDownLatch latch1 = new CountDownLatch(1);
 
-	@org.springframework.kafka.annotation.KafkaListener(id = "member-consumer-group", topics = "member-event-topic")
-	public void listen1(String message) {
-
-		log.debug("receive message from member : {}", message);
-
-		this.latch1.countDown();
-	}
+//	@org.springframework.kafka.annotation.KafkaListener(id = "member-consumer-group", topics = "member-event-topic")
+//	public void listen1(String message) {
+//
+//		log.debug("receive message from member : {}", message);
+//
+//		this.latch1.countDown();
+//	}
 
 }

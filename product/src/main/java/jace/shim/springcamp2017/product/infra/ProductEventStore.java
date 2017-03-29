@@ -33,9 +33,10 @@ public class ProductEventStore implements EventStore<Long> {
 
 	@Override
 	public void saveEvents(final Long identifier, Long expectedVersion, final List<Event> events) {
-		// 신규 등록된 aggregate가 아닌 경우 version확인 후 처리
+		// 신규 등록이 아닌 경우 version확인 후 처리
 		if (expectedVersion > 0) {
-			List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifer(identifier);
+
+			List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifier(identifier);
 			Long actualVersion = productRawEvents.stream()
 				.sorted(Comparator.comparing(ProductRawEvent::getVersion))
 				.findFirst().map(ProductRawEvent::getVersion)
@@ -65,13 +66,13 @@ public class ProductEventStore implements EventStore<Long> {
 			productEventStoreRepository.save(productRawEvent);
 
 			// event 발행
-			eventPublisher.publish(event);
+			eventPublisher.publish(productRawEvent);
 		}
 	}
 
 	@Override
 	public List<Event<Long>> getEvents(Long identifier) {
-		final List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifer(identifier);
+		final List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifier(identifier);
 		return convertEvent(productRawEvents);
 	}
 
@@ -83,7 +84,7 @@ public class ProductEventStore implements EventStore<Long> {
 
 	@Override
 	public List<Event<Long>> getEventsByAfterVersion(Long identifier, Long version) {
-		final List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentiferAndVersionGreaterThan(identifier, version);
+		final List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifierAndVersionGreaterThan(identifier, version);
 		return convertEvent(productRawEvents);
 	}
 
@@ -100,5 +101,4 @@ public class ProductEventStore implements EventStore<Long> {
 			return event;
 		}).collect(Collectors.toList());
 	}
-
 }

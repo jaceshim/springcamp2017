@@ -3,6 +3,7 @@ package jace.shim.springcamp2017.product.service;
 import jace.shim.springcamp2017.core.exception.EventApplyException;
 import jace.shim.springcamp2017.product.exception.NotExistsProductException;
 import jace.shim.springcamp2017.product.infra.ProductEventHandler;
+import jace.shim.springcamp2017.product.infra.ProductEventStoreRepository;
 import jace.shim.springcamp2017.product.model.Product;
 import jace.shim.springcamp2017.product.model.command.ProductCommand;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,10 @@ public class ProductService {
 	@Autowired
 	private ProductEventHandler eventRepository;
 
+	@Autowired
+	private ProductEventStoreRepository productEventStoreRepository;
+
+
 	/**
 	 * 상품 등록
 	 *
@@ -26,7 +31,10 @@ public class ProductService {
 	 * @return
 	 */
 	public Product createProduct(ProductCommand.CreateProduct productCreateCommand) {
-		Product product = Product.create(productCreateCommand);
+
+		Long productId = productEventStoreRepository.createProductId();
+
+		Product product = Product.create(productId, productCreateCommand);
 		// 이벤트 저장
 		eventRepository.save(product);
 

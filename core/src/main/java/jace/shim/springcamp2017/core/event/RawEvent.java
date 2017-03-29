@@ -5,7 +5,7 @@ package jace.shim.springcamp2017.core.event;
  */
 public interface RawEvent<ID> {
 
-	ID getIdentifer();
+	ID getIdentifier();
 
 	String getType();
 

@@ -51,11 +51,6 @@ public class KafkaConfig {
 	}
 
 	@Bean
-	public KafkaListener kafkaListener() {
-		return new KafkaListener();
-	}
-
-	@Bean
 	public ProducerFactory<String, String> producerFactory() {
 		return new DefaultKafkaProducerFactory<>(producerConfigs());
 	}

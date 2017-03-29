@@ -1,6 +1,6 @@
 package jace.shim.springcamp2017.member.infra;
 
-import jace.shim.springcamp2017.core.event.BaseEventHandler;
+import jace.shim.springcamp2017.core.event.AbstractEventHandler;
 import jace.shim.springcamp2017.core.event.EventStore;
 import jace.shim.springcamp2017.core.snapshot.SnapshotRepository;
 import jace.shim.springcamp2017.member.model.Member;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * Created by jaceshim on 2017. 3. 14..
  */
 @Component
-public class MemberEventHandler extends BaseEventHandler<Member, String> {
+public class MemberEventHandler extends AbstractEventHandler<Member, String> {
 
 	@Autowired
 	public MemberEventHandler(EventStore eventStore,

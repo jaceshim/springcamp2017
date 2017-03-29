@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface MemberEventStoreRepository extends JpaRepository<MemberRawEvent, String> {
 
-	List<MemberRawEvent> findByIdentifer(String identifier);
+	List<MemberRawEvent> findByIdentifier(String identifier);
 
-	List<MemberRawEvent> findByIdentiferAndVersionGreaterThan(String identifier, Long version);
+	List<MemberRawEvent> findByIdentifierAndVersionGreaterThan(String identifier, Long version);
 }

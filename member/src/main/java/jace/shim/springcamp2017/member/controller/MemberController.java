@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -23,14 +22,14 @@ import java.util.stream.Collectors;
 /**
  * Created by jaceshim on 2017. 3. 23..
  */
-@Controller
+@RestController
+@RequestMapping("/api")
 public class MemberController {
 
 	@Autowired
 	private MemberService memberService;
 
-	@RequestMapping(value = "/members", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
+	@RequestMapping(value = "/members", method = RequestMethod.PUT )
 	public ResponseEntity<Member> createMember(@RequestBody @Valid MemberCommand.CreateMember memberCreateCommand, BindingResult bindingResult) throws Exception {
 		if (bindingResult.hasErrors()) {
 			throw new InvalidRequestException("Invalid Parameter!", bindingResult);
@@ -40,9 +39,7 @@ public class MemberController {
 		return new ResponseEntity<>(member, HttpStatus.CREATED);
 	}
 
-	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST,
-		params = "type=changeName",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST, params = "type=changeName")
 	public ResponseEntity<Member> changeName(@PathVariable final String id,
 		@RequestBody @Valid MemberCommand.ChangeName memberChangeNameCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
@@ -54,9 +51,7 @@ public class MemberController {
 		return new ResponseEntity<>(member, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST,
-		params = "type=changeEmail",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST, params = "type=changeEmail")
 	public ResponseEntity<Member> changeEmail(@PathVariable final String id,
 		@RequestBody @Valid MemberCommand.ChangeEmail memberChangeEmailCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
@@ -68,9 +63,7 @@ public class MemberController {
 		return new ResponseEntity<>(member, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST,
-		params = "type=changePassword",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST, params = "type=changePassword")
 	public ResponseEntity<Member> changePassword(@PathVariable final String id,
 		@RequestBody @Valid MemberCommand.ChangePassword memberChangePasswordCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
@@ -82,9 +75,7 @@ public class MemberController {
 		return new ResponseEntity<>(member, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST,
-		params = "type=changeAddress",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST, params = "type=changeAddress")
 	public ResponseEntity<Member> changeAddress(@PathVariable final String id,
 		@RequestBody @Valid MemberCommand.ChangeAddress memberChangeAddressCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
@@ -96,9 +87,7 @@ public class MemberController {
 		return new ResponseEntity<>(member, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST,
-		params = "type=changeWithdrawal",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/members/{id}", method = RequestMethod.POST, params = "type=changeWithdrawal")
 	public ResponseEntity<Member> changeWithdrawal(@PathVariable final String id,
 		@RequestBody @Valid MemberCommand.ChangeWithdrawal memberChangeWithdrawalCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {

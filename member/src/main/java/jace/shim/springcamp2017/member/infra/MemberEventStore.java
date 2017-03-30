@@ -70,7 +70,7 @@ public class MemberEventStore implements EventStore<String> {
 			// event 발행
 			eventPublisher.publish(memberRawEvent);
 
-			// event project
+			// event projection
 			eventListener.handle(event);
 		}
 	}

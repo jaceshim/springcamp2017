@@ -21,7 +21,6 @@ import static java.lang.String.format;
 public class ProductEventStoreRepository {
 
 	private static final String TABLE_NAME = "raw_event";
-	private static final String[] COLUMNS = {"identifier", "type", "version", "payload", "created"};
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -29,8 +28,8 @@ public class ProductEventStoreRepository {
 	public long save(ProductRawEvent productRawEvent) {
 		StringBuilder query = new StringBuilder();
 		query.append(format("INSERT INTO %s ", TABLE_NAME));
-		query.append(format(" ( %s, %s, %s, %s, %s, %s )", COLUMNS));
-		query.append("(?, ?, ?, ?, ? ) ");
+		query.append(" ( identifier, type, version, payload, created ) ");
+		query.append(" VALUES ( ?, ?, ?, ?, ? ) ");
 
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(connection -> {

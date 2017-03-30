@@ -10,8 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  * Created by jaceshim on 2017. 3. 27..
@@ -130,9 +128,5 @@ public class MemberEventListener extends AbstractEventListener {
 		query.append("WHERE id = ?");
 
 		jdbcTemplate.update(query.toString(), event.isWithdrawal(), convertLocalDateTimeToTimestamp(event.getUpdated()), event.getId());
-	}
-
-	private Timestamp convertLocalDateTimeToTimestamp(LocalDateTime dateTime) {
-		return Timestamp.valueOf(dateTime);
 	}
 }

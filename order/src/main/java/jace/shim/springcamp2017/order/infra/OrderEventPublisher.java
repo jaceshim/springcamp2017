@@ -27,8 +27,8 @@ public class OrderEventPublisher implements EventPublisher {
 	@Value("${kafka.bootstrap.servers}")
 	private String kafkaBootstrapServers;
 
-	@Value("${kafka.product.topic}")
-	private String productKafkaTopic;
+	@Value("${kafka.order.topic}")
+	private String orderKafkaTopic;
 
 	@Async
 	@Override
@@ -39,8 +39,8 @@ public class OrderEventPublisher implements EventPublisher {
 
 		try {
 			final String sendMessage = objectMapper.writeValueAsString(rawEvent);
-			kafkaTemplate.send(productKafkaTopic, sendMessage);
-			log.debug("{} 전송 완료  - {}", this.productKafkaTopic, sendMessage);
+			kafkaTemplate.send(orderKafkaTopic, sendMessage);
+			log.debug("{} 전송 완료  - {}", this.orderKafkaTopic, sendMessage);
 		} catch (final JsonProcessingException e) {
 			log.error(e.getMessage(), e);
 		}

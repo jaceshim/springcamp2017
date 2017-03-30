@@ -23,15 +23,15 @@ import java.util.stream.Collectors;
 /**
  * Created by jaceshim on 2017. 3. 3..
  */
-@RestController
 @Slf4j
+@RestController
+@RequestMapping("/api")
 public class ProductController {
 
 	@Autowired
 	private ProductService productService;
 
-	@RequestMapping(value = "/products", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	@ResponseBody
+	@RequestMapping(value = "/products", method = RequestMethod.PUT)
 	public ResponseEntity<Product> createProduct(@RequestBody @Valid ProductCommand.CreateProduct productCreateCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			throw new InvalidRequestException("Invalid Parameter!", bindingResult);
@@ -41,12 +41,9 @@ public class ProductController {
 		return new ResponseEntity<>(product, HttpStatus.CREATED);
 	}
 
-	@RequestMapping(value = "/products/{productId}", method = RequestMethod.POST,
-		params = "type=changeName",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/products/{productId}", method = RequestMethod.POST, params = "type=changeName")
 	public ResponseEntity<Product> changeName(@PathVariable final Long productId,
 		@RequestBody @Valid ProductCommand.ChangeName productChangeNameCommand, BindingResult bindingResult) {
-
 		if (bindingResult.hasErrors()) {
 			throw new InvalidRequestException("Invalid Parameter!", bindingResult);
 		}
@@ -56,9 +53,7 @@ public class ProductController {
 		return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/products/{productId}", method = RequestMethod.POST,
-		params = "type=changePrice",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/products/{productId}", method = RequestMethod.POST, params = "type=changePrice")
 	public ResponseEntity<Product> changePrice(@PathVariable final Long productId,
 		@RequestBody @Valid ProductCommand.ChangePrice productChangePriceCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
@@ -70,9 +65,7 @@ public class ProductController {
 		return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/products/{productId}", method = RequestMethod.POST,
-		params = "type=increaseQuantity",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/products/{productId}", method = RequestMethod.POST, params = "type=increaseQuantity")
 	public ResponseEntity<Product> increaseQuantity(@PathVariable final Long productId,
 		@RequestBody @Valid ProductCommand.IncreaseQuantity productIncreaseQuantityCommand, BindingResult bindingResult) {
 
@@ -85,9 +78,7 @@ public class ProductController {
 		return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/products/{productId}", method = RequestMethod.POST,
-		params = "type=decreaseQuantity",
-		produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/products/{productId}", method = RequestMethod.POST, params = "type=decreaseQuantity")
 	public ResponseEntity<Product> decreaseQuantity(@PathVariable final Long productId,
 		@RequestBody @Valid ProductCommand.DecreaseQuantity productDecreaseQuantityCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
@@ -100,7 +91,6 @@ public class ProductController {
 	}
 
 	@RequestMapping(value = "/products/{productId}", method = RequestMethod.GET)
-	@ResponseBody
 	public ResponseEntity<Product> getProduct(@PathVariable final Long productId) {
 		final Product product = productService.getProduct(productId);
 		return new ResponseEntity<>(product, HttpStatus.OK);

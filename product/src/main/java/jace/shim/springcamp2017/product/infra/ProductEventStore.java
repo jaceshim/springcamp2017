@@ -3,6 +3,7 @@ package jace.shim.springcamp2017.product.infra;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.core.event.Event;
+import jace.shim.springcamp2017.core.event.EventListener;
 import jace.shim.springcamp2017.core.event.EventPublisher;
 import jace.shim.springcamp2017.core.event.EventStore;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,9 @@ public class ProductEventStore implements EventStore<Long> {
 
 	@Autowired
 	private EventPublisher eventPublisher;
+
+	@Autowired
+	private EventListener eventListener;
 
 	@Override
 	public void saveEvents(final Long identifier, Long expectedVersion, final List<Event> events) {
@@ -67,6 +71,9 @@ public class ProductEventStore implements EventStore<Long> {
 
 			// event 발행
 			eventPublisher.publish(productRawEvent);
+
+			// event projection
+			eventListener.handle(event);
 		}
 	}
 

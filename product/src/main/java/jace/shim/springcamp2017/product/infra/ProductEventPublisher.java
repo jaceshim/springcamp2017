@@ -2,8 +2,8 @@ package jace.shim.springcamp2017.product.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jace.shim.springcamp2017.core.event.Event;
 import jace.shim.springcamp2017.core.event.EventPublisher;
+import jace.shim.springcamp2017.core.event.RawEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +32,7 @@ public class ProductEventPublisher implements EventPublisher {
 
 	@Async
 	@Override
-	public void publish(Event event) {
+	public void publish(RawEvent event) {
 		if (event == null) {
 			return;
 		}

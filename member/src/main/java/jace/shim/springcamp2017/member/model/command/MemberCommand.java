@@ -39,7 +39,7 @@ public final class MemberCommand implements Command {
 
 		/** 회원 주소 */
 		@NotNull
-		@Size(min=10)
+		@Size(min=5)
 		private String address;
 
 		public CreateMember(String id, String name, String email, String password, String address) {

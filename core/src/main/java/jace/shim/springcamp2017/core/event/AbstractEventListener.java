@@ -4,6 +4,8 @@ import jace.shim.springcamp2017.core.exception.EventListenerNotApplyException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 /**
  * Created by jaceshim on 2017. 3. 28..
@@ -24,6 +26,10 @@ public abstract class AbstractEventListener implements EventListener {
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
 			throw new EventListenerNotApplyException(e.getMessage(), e);
 		}
+	}
+
+	protected Timestamp convertLocalDateTimeToTimestamp(LocalDateTime dateTime) {
+		return Timestamp.valueOf(dateTime);
 	}
 }
 

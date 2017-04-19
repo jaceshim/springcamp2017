@@ -24,4 +24,4 @@ eventsourcing &amp; cqrs demo project for springcamp2017
 	* execute command "../gradlew bootRun" into each service directory
 	* e.g. cd member; ../gradlew bootRun
 
-2. If you ran each applications then You can access the URL ( http://member.jaceshi.com:10001/regist )
+2. If you ran each applications then You can access the URL ( http://member.jaceshim.com:10001/regist )

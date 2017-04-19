@@ -2,10 +2,8 @@ package jace.shim.springcamp2017.member.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jace.shim.springcamp2017.core.event.Event;
-import jace.shim.springcamp2017.core.event.EventListener;
-import jace.shim.springcamp2017.core.event.EventPublisher;
-import jace.shim.springcamp2017.core.event.EventStore;
+import jace.shim.springcamp2017.core.event.*;
+import jace.shim.springcamp2017.member.model.event.MemberRawEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,14 +30,14 @@ public class MemberEventStore implements EventStore<String> {
 	private EventPublisher eventPublisher;
 
 	@Autowired
-	private EventListener eventListener;
+	private EventProjector eventProjector;
 
 	@Override
 	public void saveEvents(final String identifier, Long expectedVersion, final List<Event> events) {
 		// 신규 등록이 아닌 경우 version확인 후 처리
 		if (expectedVersion > 0) {
-			List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentifier(identifier);
-			Long actualVersion = memberRawEvents.stream()
+			List<MemberRawEvent> rawEvents = memberEventStoreRepository.findByIdentifier(identifier);
+			Long actualVersion = rawEvents.stream()
 				.sorted((e1, e2) -> Long.compare(e2.getVersion(), e1.getVersion()))
 				.findFirst().map(MemberRawEvent::getVersion)
 				.orElse(-1L);
@@ -63,15 +61,16 @@ public class MemberEventStore implements EventStore<String> {
 
 			expectedVersion = increaseVersion(expectedVersion);
 			LocalDateTime now = LocalDateTime.now();
-			MemberRawEvent memberRawEvent = new MemberRawEvent(identifier, type, expectedVersion, payload, now);
+			MemberRawEvent rawEvent = new MemberRawEvent(identifier, type, expectedVersion, payload, now);
 
-			memberEventStoreRepository.save(memberRawEvent);
+			// 이벤트 저장
+			memberEventStoreRepository.save(rawEvent);
 
 			// event 발행
-			eventPublisher.publish(memberRawEvent);
+			eventPublisher.publish(rawEvent);
 
 			// event projection
-			eventListener.handle(event);
+			eventProjector.handle(event);
 		}
 	}
 
@@ -81,24 +80,24 @@ public class MemberEventStore implements EventStore<String> {
 
 	@Override
 	public List<Event<String>> getEvents(String identifier) {
-		final List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentifier(identifier);
-		return convertEvent(memberRawEvents);
+		final List<MemberRawEvent> rawEvents = memberEventStoreRepository.findByIdentifier(identifier);
+		return convertEvent(rawEvents);
 	}
 
 	@Override
 	public List<Event<String>> getAllEvents() {
-		final List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findAll();
-		return convertEvent(memberRawEvents);
+		final List<MemberRawEvent> rawEvents = memberEventStoreRepository.findAll();
+		return convertEvent(rawEvents);
 	}
 
 	@Override
 	public List<Event<String>> getEventsByAfterVersion(String identifier, Long version) {
-		final List<MemberRawEvent> memberRawEvents = memberEventStoreRepository.findByIdentifierAndVersionGreaterThan(identifier, version);
-		return convertEvent(memberRawEvents);
+		final List<MemberRawEvent> rawEvents = memberEventStoreRepository.findByIdentifierAndVersionGreaterThan(identifier, version);
+		return convertEvent(rawEvents);
 	}
 
-	private List<Event<String>> convertEvent(List<MemberRawEvent> memberRawEvents) {
-		return memberRawEvents.stream().map(rawEvent -> {
+	private List<Event<String>> convertEvent(List<MemberRawEvent> rawEvents) {
+		return rawEvents.stream().map(rawEvent -> {
 			Event<String> event = null;
 			try {
 				log.debug("-> event info : {}", rawEvent.toString());

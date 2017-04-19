@@ -3,6 +3,7 @@ package jace.shim.springcamp2017.member.infra;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.core.event.EventPublisher;
+import jace.shim.springcamp2017.member.model.event.MemberRawEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

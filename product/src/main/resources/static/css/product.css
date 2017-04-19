@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css?family=Quicksand:300,400,500,700&subset=latin-ext,vietnamese');
+body{
+	padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+	padding-bottom: 110px;
+	font-family: 'Quicksand', sans-serif;
+}
+
+h4{
+	font-weight: 600;
+}
+p{
+	font-size: 12px;
+	margin-top: 5px;
+}
+.price{
+	font-size: 25px;
+	margin: 0 auto;
+	color: #333;
+}
+
+.thumbnail{
+	opacity:0.70;
+	-webkit-transition: all 0.5s;
+	transition: all 0.5s;
+}
+.thumbnail:hover{
+	opacity:1.00;
+	box-shadow: 0px 0px 10px #4bc6ff;
+}
+.line{
+	margin-bottom: 5px;
+}
+@media screen and (max-width: 770px) {
+	.right{
+		float:left;
+		width: 100%;
+	}
+}
+span.thumbnail {
+	border: 1px solid #00c4ff !important;
+	border-radius: 0px !important;
+	-webkit-box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.16);
+	-moz-box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.16);
+	box-shadow: 0px 0px 14px 0px rgba(0,0,0,0.16);
+	padding: 10px;
+}
+.container h4{margin-top:30px; margin-bottom:30px;}
+button {    margin-top: 6px;
+}
+.right {
+	float: right;
+	border-bottom: 2px solid #0a5971;
+}
+.btn-info {
+	color: #fff;
+	background-color: #19b4e2;
+	border-color: #19b4e2;
+	font-size:13px;
+	font-weight:600;
+}
+
+input.dev-order-quantity {
+	margin-top: 6px;
+	width: 55px !important;
+	font-size: 1.2em;
+}
+
+.navbar-fixed-bottom .container {
+	background-color: #eee !important;
+}
+
+#cart-items {
+	width:100%;
+	position: relative;
+}
+
+#cart-items .item-content {
+	position: relative;
+	float: left;
+	display: block;
+	height: 80px;
+	width: 80px;
+	border: solid 1px #ccc;
+	padding: 10px;
+	margin: 0px 5px;
+	/* If you don't want the images in the scroller to be selectable, try the following
+	   block of code. It's just a nice feature that prevent the images from
+	   accidentally becoming selected/inverted when the user interacts with the scroller. */
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+#cart-items .item-content img {
+	margin-bottom: 10px;
+	width: 50px;
+	height: 50px;
+}
+
+#cart-items .item-content p {
+	font-size: 10px;
+}
+
+/* You can alter this CSS in order to give Smooth Div Scroll your own look'n'feel */
+
+/* Invisible left hotspot */
+div.scrollingHotSpotLeft
+{
+	/* The hotspots have a minimum width of 100 pixels and if there is room the will grow
+    and occupy 15% of the scrollable area (30% combined). Adjust it to your own taste. */
+	min-width: 75px;
+	width: 10%;
+	height: 100%;
+	/* There is a big background image and it's used to solve some problems I experienced
+    in Internet Explorer 6. */
+	background-image: url(../images/smoothdivscroll/big_transparent.gif);
+	background-repeat: repeat;
+	background-position: center center;
+	position: absolute;
+	z-index: 200;
+	left: 0;
+	/*  The first url is for Firefox and other browsers, the second is for Internet Explorer */
+	cursor: url(../images/smoothdivscroll/cursors/cursor_arrow_left.png), url(../images/smoothdivscroll/cursors/cursor_arrow_left.cur),w-resize;
+}
+
+/* Visible left hotspot */
+div.scrollingHotSpotLeftVisible
+{
+	background-image: url(../images/smoothdivscroll/arrow_left.gif);
+	background-color: #fff;
+	background-repeat: no-repeat;
+	opacity: 0.35; /* Standard CSS3 opacity setting */
+	-moz-opacity: 0.35; /* Opacity for really old versions of Mozilla Firefox (0.9 or older) */
+	filter: alpha(opacity = 35); /* Opacity for Internet Explorer. */
+	zoom: 1; /* Trigger "hasLayout" in Internet Explorer 6 or older versions */
+}
+
+/* Invisible right hotspot */
+div.scrollingHotSpotRight
+{
+	min-width: 75px;
+	width: 10%;
+	height: 100%;
+	background-image: url(../images/smoothdivscroll/big_transparent.gif);
+	background-repeat: repeat;
+	background-position: center center;
+	position: absolute;
+	z-index: 200;
+	right: 0;
+	cursor: url(../images/smoothdivscroll/cursors/cursor_arrow_right.png), url(../images/smoothdivscroll/cursors/cursor_arrow_right.cur),e-resize;
+}
+
+/* Visible right hotspot */
+div.scrollingHotSpotRightVisible
+{
+	background-image: url(../images/smoothdivscroll/arrow_right.gif);
+	background-color: #fff;
+	background-repeat: no-repeat;
+	opacity: 0.35;
+	filter: alpha(opacity = 35);
+	-moz-opacity: 0.35;
+	zoom: 1;
+}
+
+/* The scroll wrapper is always the same width and height as the containing element (div).
+   Overflow is hidden because you don't want to show all of the scrollable area.
+*/
+div.scrollWrapper
+{
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+}
+
+div.scrollableArea
+{
+	position: relative;
+	width: auto;
+	height: 100%;
+}
+
+ul.order-line {
+	padding: 0;
+	margin-top: 10px;
+	list-style: none;
+}
+
+ul.order-line li {
+	position: relative;
+	display: inline-block;
+	text-align: center;
+	margin-left: 10px;
+	width: 50px;
+}
+
+ul.order-line li a.dev-remove-item {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	display: inline-block;
+	color: #19b4e2 !important;
+}
+
+ul.order-line li img {
+	width: 100%;
+	height: 50px;
+	border: 1px solid #00c4ff !important
+}

@@ -36,6 +36,4 @@ public interface EventStore<ID> {
 	 * @return
 	 */
 	List<Event<ID>> getEventsByAfterVersion(ID identifier, Long version);
-
-
 }

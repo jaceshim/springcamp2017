@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- Website CSS style -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+	<!-- Website Font style -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.0/css/bootstrapValidator.min.css">
+	<!-- Google Fonts -->
+	<link href='https://fonts.googleapis.com/css?family=Passion+One' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
+
+	<style>
+		body{
+			padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+			padding-bottom: 110px;
+			font-family: 'Quicksand', sans-serif;
+		}
+
+		.media-heading {
+			margin: 8px 0 0 10px;
+		}
+	</style>
+	<title>상품 주문</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#">Jace's SHOP</a>
+		</div>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="active">
+					<a href="http://product.jaceshim.com:30001/products?type=createProduct">상품등록</a>
+				</li>
+				<li>
+					<a href="http://product.jaceshim.com:30001/products">상품목록</a>
+				</li>
+				<li>
+					<a href="http://member.jaceshim.com:10001/products">마이페이지</a>
+				</li>
+			</ul>
+		</div>
+		<!-- /.navbar-collapse -->
+	</div>
+	<!-- /.container -->
+</nav>
+<div class="container">
+	<div class="row">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<span class=""></span>주문상품
+			</div>
+			<div class="panel-body">
+				<table class="table table-hover">
+					<thead>
+					<tr>
+						<th>상품</th>
+						<th>수량</th>
+						<th class="text-center">단가</th>
+						<th class="text-center">상품금액</th>
+						<th> </th>
+					</tr>
+					</thead>
+					<tbody>
+					{{#each checkoutInfo.checkoutItems}}
+						<tr class="cart-item">
+							<td class="col-sm-8 col-md-6">
+								<div class="media">
+									<a class="thumbnail pull-left" href="#">
+										<img class="media-object" src="{{product.imagePath}}" style="width: 72px; height: 72px;">
+									</a>
+									<div class="media-body">
+										<h4 class="media-heading"><a href="#">{{product.name}}</a></h4>
+									</div>
+								</div>
+							</td>
+							<td class="col-sm-1 col-md-1" style="text-align: center">
+								<input type="text" class="form-control" name="quantity" value="{{quantity}}" data-productId="{{product.productId}}" data-price="{{product.price}}" data-productPrice="{{productPrice}}">
+							</td>
+							<td class="col-sm-1 col-md-1 text-center">￦<strong>{{product.formatPrice}}</strong></td>
+							<td class="col-sm-1 col-md-1 text-center">￦<strong id="{{product.productId}}-formatProductPrice" class="dev-formatproductprice">{{formatProductPrice}}</strong></td>
+							<td class="col-sm-1 col-md-1">
+								<button type="button" class="btn btn-danger dev-remove-cart-item">
+									<span class="glyphicon glyphicon-remove"></span> 삭제
+								</button>
+							</td>
+						</tr>
+					{{/each}}
+					<tr>
+						<td>   </td>
+						<td>   </td>
+						<td><h4>주문금액</h4></td>
+						<td class="text-right"><h4>￦<strong id="totalOrderPrice">{{checkoutInfo.formatTotalOrderPrice}}</strong></h4></td>
+						<td>   </td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<span class=""></span>배송정보
+			</div>
+			<div class="panel-body">
+				<form class="form-horizontal" role="form" method="post" data-toggle="validator">
+					<div class="form-group">
+						<label for="name" class="col-sm-3 control-label">배송주소</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="address" name="address" value="{{member.address}}"
+								   data-required-error="배송주소를 입력해 주세요" required>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="email" class="col-sm-3 control-label">휴대전화</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="phone" name="phone" placeholder="입력형식 : 010-1234-5678"
+								   data-required-error="휴대폰 번호를 입력해 주세요."
+								   data-pattern-error="휴대폰 번호를 010-1234-5678 형식으로 입력해 주세요" pattern="^01([0|1|6|7|8|9]?)-?([0-9]{3,4})-?([0-9]{4})$" required>
+							<div class="help-block with-errors"></div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="email" class="col-sm-3 control-label">배송메모</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="deliveryMessage" name="deliveryMessage">
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-2 col-md-offset-10">
+		<button type="button" class="btn btn-primary btn-lg dev-order-button" style="padding:10px 30px; font-size: 25px">주문하기</button>
+	</div>
+
+</div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/validator.min.js"></script>
+<script>
+
+	Number.prototype.format = function(){
+		if(this==0) return 0;
+		var reg = /(^[+-]?\d+)(\d{3})/;
+		var n = (this + '');
+		while (reg.test(n)) n = n.replace(reg, '$1' + ',' + '$2');
+
+		return n;
+	};
+
+	$(document).ready(function() {
+		function calculateTotalOrderPrice() {
+			// 다음식은 상품개수 많아지면 느려져요!
+			var newTotalOrderPrice = 0;
+			$('.dev-formatproductprice').each(function() {
+				newTotalOrderPrice += Number($(this).text().replace(/,/gi, ""));
+			});
+
+			$('#totalOrderPrice').text(newTotalOrderPrice.format());
+		}
+
+		$('input[name="quantity"]').on('input', function() {
+			var $this = $(this);
+			var quantity = $this.val();
+			if (quantity === '') {
+				return false;
+			}
+
+			if (quantity !== '' && quantity <= 0) {
+				alert('구매수량은 1개 이상이어야 합니다');
+				return false;
+			}
+
+			var productId = $this.attr('data-productId');
+			var price = $this.attr('data-price');
+			console.log('price = ' + price);
+			var productPrice = $this.attr('data-productPrice');
+			console.log('productPrice = ' + productPrice);
+			var newProductPrice = Number(quantity * price);
+
+			console.log('newProductPrice = ' + newProductPrice);
+
+			$('#' + productId + '-formatProductPrice').text(newProductPrice.format());
+
+			calculateTotalOrderPrice();
+		});
+
+		$('.dev-remove-cart-item').click(function() {
+			var msg = '선택하신 상품을 삭제하시겠습니까?';
+			if (confirm(msg)) {
+				$(this).parentsUntil('tbody').remove();
+				calculateTotalOrderPrice();
+			}
+		});
+
+		$('.dev-order-button').click(function() {
+			$('form').submit();
+		});
+
+		$('form').validator().on('submit', function (e) {
+			if (!e.isDefaultPrevented()) {
+				var $cartItems = $('.cart-item');
+				if ($cartItems.length == 0) {
+					alert('주문할 상품이 존재하지 않습니다');
+					return false;
+				}
+
+				var formData = {
+					"orderItems": [],
+					"delivery": {
+						"address": $('#address').val(),
+						"phone": $('#phone').val(),
+						"deliveryMessage": $('#deliveryMessage').val()
+					}
+				}
+				$cartItems.each(function() {
+					var $quantityInput = $(this).find('input[name="quantity"]');
+					var orderItem = {
+						"productId" : $quantityInput.attr('data-productId'),
+						"quantity": $quantityInput.val()
+					}
+
+					formData.orderItems.push(orderItem);
+				});
+
+				$.ajax({
+					url: '/orders',
+					data: JSON.stringify(formData),
+					contentType: 'application/json; charset=utf-8',
+					dataType: 'json',
+					type: 'POST',
+					success: function(data) {
+						alert("주문완료 되었습니다");
+						document.location.href = "http://member.jaceshim.com:10001/mypage";
+					},
+					error: function(jqXHR, textStatus, errorThrown) {
+						alert(textStatus);
+					}
+				});
+
+				return false;
+			}
+		});
+	});
+</script>
+</body>
+</html>

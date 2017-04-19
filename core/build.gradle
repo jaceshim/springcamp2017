@@ -8,6 +8,8 @@ dependencies {
     ext {
         jacksonVersion = '2.8.0'
     }
+    // infra 종속적인 의존성이 core에 와 있다니 ㅜㅜ
+    compile('org.hibernate:hibernate-core:5.0.11.Final')
 
     compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
     compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")

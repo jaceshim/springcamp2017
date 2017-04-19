@@ -21,6 +21,7 @@ allprojects {
 }
 
 subprojects {
+
     apply plugin: 'java'
     apply plugin: 'groovy'
 
@@ -77,5 +78,10 @@ subprojects {
             configuration.exclude group: 'org.slf4j', module: 'slf4j-jcl'
             configuration.exclude group: 'org.slf4j', module: 'slf4j-jdk14'
         }
+    }
+
+    task "create-dirs" << {
+        sourceSets*.java.srcDirs*.each { it.mkdirs() }
+        sourceSets*.resources.srcDirs*.each { it.mkdirs() }
     }
 }

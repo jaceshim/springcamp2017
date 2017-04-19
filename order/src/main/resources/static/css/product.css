@@ -177,3 +177,30 @@ div.scrollableArea
 	width: auto;
 	height: 100%;
 }
+
+ul.order-line {
+	padding: 0;
+	margin-top: 10px;
+	list-style: none;
+}
+
+ul.order-line li {
+	position: relative;
+	display: inline-block;
+	text-align: center;
+	margin-left: 10px;
+}
+
+ul.order-line li a.dev-remove-item {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	display: inline-block;
+	color: #19b4e2 !important;
+}
+
+ul.order-line li img {
+	width: 70px;
+	height: 70px;
+	border: 1px solid #00c4ff !important
+}

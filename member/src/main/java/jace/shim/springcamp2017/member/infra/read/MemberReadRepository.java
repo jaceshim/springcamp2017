@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MemberReadRepository extends JpaRepository<Member, String> {
+	Member findById(String id);
 }

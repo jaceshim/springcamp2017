@@ -1,14 +1,15 @@
 package jace.shim.springcamp2017.product.infra;
 
+import jace.shim.springcamp2017.product.model.event.ProductRawEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import static java.lang.String.format;
  * Created by jaceshim on 2017. 3. 14..
  */
 @Repository
+@Slf4j
 public class ProductEventStoreRepository {
 
 	private static final String TABLE_NAME = "raw_event";
@@ -25,7 +27,7 @@ public class ProductEventStoreRepository {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	public long save(ProductRawEvent productRawEvent) {
+	public long save(ProductRawEvent commonRawEvent) {
 		StringBuilder query = new StringBuilder();
 		query.append(format("INSERT INTO %s ", TABLE_NAME));
 		query.append(" ( identifier, type, version, payload, created ) ");
@@ -35,11 +37,11 @@ public class ProductEventStoreRepository {
 		jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
 			int idx = 0;
-			statement.setLong(++idx, productRawEvent.getIdentifier());
-			statement.setString(++idx, productRawEvent.getType());
-			statement.setLong(++idx, productRawEvent.getVersion());
-			statement.setString(++idx, productRawEvent.getPayload());
-			statement.setTimestamp(++idx, convertLocalDateTimeToTimestamp(productRawEvent.getCreated()));
+			statement.setLong(++idx, commonRawEvent.getIdentifier());
+			statement.setString(++idx, commonRawEvent.getType());
+			statement.setLong(++idx, commonRawEvent.getVersion());
+			statement.setString(++idx, commonRawEvent.getPayload());
+			statement.setTimestamp(++idx, convertLocalDateTimeToTimestamp(commonRawEvent.getCreated()));
 
 			return statement;
 		}, keyHolder);
@@ -52,14 +54,16 @@ public class ProductEventStoreRepository {
 		query.append(selectQuery());
 		query.append(" WHERE identifier = ?");
 
-		return jdbcTemplate.queryForList(query.toString(), ProductRawEvent.class, identifier);
+		log.debug("-> find query : " + query.toString());
+
+		return jdbcTemplate.query(query.toString(), new Object[]{identifier}, new CommonRawEventRowMapper());
 	}
 
 	public List<ProductRawEvent> findAll() {
 		StringBuilder query = new StringBuilder();
 		query.append(selectQuery());
 
-		return jdbcTemplate.queryForList(query.toString(), ProductRawEvent.class);
+		return jdbcTemplate.query(query.toString(), new CommonRawEventRowMapper());
 	}
 
 	public List<ProductRawEvent> findByIdentifierAndVersionGreaterThan(Long identifier, Long version) {
@@ -68,7 +72,7 @@ public class ProductEventStoreRepository {
 		query.append(" WHERE identifier = ?");
 		query.append("   AND version >= ?");
 
-		return jdbcTemplate.queryForList(query.toString(), ProductRawEvent.class, identifier, version);
+		return jdbcTemplate.query(query.toString(), new Object[]{identifier, version}, new CommonRawEventRowMapper());
 	}
 
 	private static String selectQuery() {
@@ -77,10 +81,6 @@ public class ProductEventStoreRepository {
 		query.append(format(" FROM %s ", TABLE_NAME));
 
 		return query.toString();
-	}
-
-	private Timestamp convertLocalDateTimeToTimestamp(LocalDateTime dateTime) {
-		return Timestamp.valueOf(dateTime);
 	}
 
 	/**
@@ -98,5 +98,33 @@ public class ProductEventStoreRepository {
 		query.append(" SELECT LAST_INSERT_ID() ");
 
 		return jdbcTemplate.queryForObject(query.toString(), Long.class);
+	}
+
+	private static Timestamp convertLocalDateTimeToTimestamp(LocalDateTime dateTime) {
+		return Timestamp.valueOf(dateTime);
+	}
+
+	static class CommonRawEventRowMapper implements RowMapper<ProductRawEvent> {
+
+		@Override
+		public ProductRawEvent mapRow(ResultSet rs, int rowNum) throws SQLException {
+			final ProductRawEvent commonRawEvent = new ProductRawEvent();
+			commonRawEvent.setSeq(rs.getLong("seq"));
+			commonRawEvent.setIdentifier(rs.getLong("identifier"));
+			commonRawEvent.setType(rs.getString("type"));
+			commonRawEvent.setVersion(rs.getLong("version"));
+			commonRawEvent.setPayload(rs.getString("payload"));
+
+			final Timestamp created = rs.getTimestamp("created");
+
+			commonRawEvent.setCreated(convertTimestampToLocalDateTime(created));
+
+			return commonRawEvent;
+		}
+
+		private static LocalDateTime convertTimestampToLocalDateTime(Timestamp dateTime) {
+			return dateTime.toLocalDateTime();
+		}
+
 	}
 }

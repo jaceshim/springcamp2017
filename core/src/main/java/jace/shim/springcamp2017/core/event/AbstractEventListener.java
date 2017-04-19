@@ -1,6 +1,6 @@
 package jace.shim.springcamp2017.core.event;
 
-import jace.shim.springcamp2017.core.exception.EventListenerNotApplyException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,9 +10,10 @@ import java.time.LocalDateTime;
 /**
  * Created by jaceshim on 2017. 3. 28..
  */
+@Slf4j
 public abstract class AbstractEventListener implements EventListener {
 
-	protected static String APPLY_METHOD_NAME = "apply";
+	protected static String APPLY_METHOD_NAME = "execute";
 
 	@Override
 	public void handle(Event event) {
@@ -24,7 +25,8 @@ public abstract class AbstractEventListener implements EventListener {
 				method.invoke(this, event);
 			}
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
-			throw new EventListenerNotApplyException(e.getMessage(), e);
+			log.error(e.getMessage(), e);
+			//throw new EventListenerNotApplyException(e.getMessage(), e);
 		}
 	}
 

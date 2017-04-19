@@ -1,7 +1,7 @@
 package jace.shim.springcamp2017.product.service;
 
 import jace.shim.springcamp2017.core.exception.EventApplyException;
-import jace.shim.springcamp2017.product.exception.NotExistsProductException;
+import jace.shim.springcamp2017.product.exception.ProductNotFoundException;
 import jace.shim.springcamp2017.product.infra.ProductEventHandler;
 import jace.shim.springcamp2017.product.infra.ProductEventStoreRepository;
 import jace.shim.springcamp2017.product.model.Product;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
 	@Autowired
-	private ProductEventHandler eventRepository;
+	private ProductEventHandler productEventHandler;
 
 	@Autowired
 	private ProductEventStoreRepository productEventStoreRepository;
@@ -31,12 +31,11 @@ public class ProductService {
 	 * @return
 	 */
 	public Product createProduct(ProductCommand.CreateProduct productCreateCommand) {
-
-		Long productId = productEventStoreRepository.createProductId();
-
-		Product product = Product.create(productId, productCreateCommand);
+		// DB sequence를 통해서 유일한 productId값 생성
+		final Long productId = productEventStoreRepository.createProductId();
+		final Product product = Product.create(productId, productCreateCommand);
 		// 이벤트 저장
-		eventRepository.save(product);
+		productEventHandler.save(product);
 
 		return product;
 	}
@@ -53,7 +52,7 @@ public class ProductService {
 		final Product product = this.getProduct(productId);
 		product.changeName(productChangeNameCommand);
 
-		eventRepository.save(product);
+		productEventHandler.save(product);
 
 		return product;
 	}
@@ -68,7 +67,7 @@ public class ProductService {
 		final Product product = this.getProduct(productId);
 		product.changePrice(productChangePriceCommand);
 
-		eventRepository.save(product);
+		productEventHandler.save(product);
 
 		return product;
 	}
@@ -80,9 +79,9 @@ public class ProductService {
 	 * @return
 	 */
 	public Product getProduct(Long productId) {
-		final Product product = eventRepository.find(productId);
+		final Product product = productEventHandler.find(productId);
 		if (product == null) {
-			throw new NotExistsProductException(productId + "is not exists.");
+			throw new ProductNotFoundException(productId + "is not exists.");
 		}
 		return product;
 	}
@@ -99,7 +98,7 @@ public class ProductService {
 		final Product product = this.getProduct(productId);
 		product.increaseQuantity(productIncreaseQuantityCommand);
 
-		eventRepository.save(product);
+		productEventHandler.save(product);
 
 		return product;
 	}
@@ -116,7 +115,7 @@ public class ProductService {
 		final Product product = this.getProduct(productId);
 		product.decreaseQuantity(productDecreaseQuantityCommand);
 
-		eventRepository.save(product);
+		productEventHandler.save(product);
 
 		return product;
 	}

@@ -3,7 +3,7 @@ package jace.shim.springcamp2017.product.infra;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.core.event.EventPublisher;
-import jace.shim.springcamp2017.core.event.RawEvent;
+import jace.shim.springcamp2017.product.model.event.ProductRawEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class ProductEventPublisher implements EventPublisher {
+public class ProductEventPublisher implements EventPublisher<ProductRawEvent> {
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -32,7 +32,7 @@ public class ProductEventPublisher implements EventPublisher {
 
 	@Async
 	@Override
-	public void publish(RawEvent event) {
+	public void publish(ProductRawEvent event) {
 		if (event == null) {
 			return;
 		}

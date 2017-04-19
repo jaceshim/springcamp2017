@@ -2,7 +2,9 @@ package jace.shim.springcamp2017.product.controller;
 
 import jace.shim.springcamp2017.product.error.ErrorResource;
 import jace.shim.springcamp2017.product.error.FieldErrorResource;
-import jace.shim.springcamp2017.product.error.InvalidRequestException;
+import jace.shim.springcamp2017.product.exception.InvalidRequestException;
+import jace.shim.springcamp2017.product.exception.ProductNotFoundException;
+import jace.shim.springcamp2017.product.infra.read.ProductReadRepository;
 import jace.shim.springcamp2017.product.model.Product;
 import jace.shim.springcamp2017.product.model.command.ProductCommand;
 import jace.shim.springcamp2017.product.service.ProductService;
@@ -31,13 +33,25 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 
+	@Autowired
+	private ProductReadRepository productReadRepository;
+
+	@RequestMapping(value = "/products/{productId}", method = RequestMethod.GET)
+	public ResponseEntity<jace.shim.springcamp2017.product.model.read.Product> getProduct(@PathVariable final Long productId) {
+		final jace.shim.springcamp2017.product.model.read.Product product = productReadRepository.findByProductId(productId);
+		if (product == null) {
+			throw new ProductNotFoundException(String.format("product id is %d", productId));
+		}
+		return new ResponseEntity<>(product, HttpStatus.OK);
+	}
+
 	@RequestMapping(value = "/products", method = RequestMethod.PUT)
-	public ResponseEntity<Product> createProduct(@RequestBody @Valid ProductCommand.CreateProduct productCreateCommand, BindingResult bindingResult) {
+	public ResponseEntity<Product> createProduct(@RequestBody @Valid ProductCommand.CreateProduct command, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			throw new InvalidRequestException("Invalid Parameter!", bindingResult);
 		}
 
-		final Product product = productService.createProduct(productCreateCommand);
+		final Product product = productService.createProduct(command);
 		return new ResponseEntity<>(product, HttpStatus.CREATED);
 	}
 
@@ -87,12 +101,6 @@ public class ProductController {
 
 		final Product product = productService.decreaseQuantity(productId, productDecreaseQuantityCommand);
 
-		return new ResponseEntity<>(product, HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/products/{productId}", method = RequestMethod.GET)
-	public ResponseEntity<Product> getProduct(@PathVariable final Long productId) {
-		final Product product = productService.getProduct(productId);
 		return new ResponseEntity<>(product, HttpStatus.OK);
 	}
 

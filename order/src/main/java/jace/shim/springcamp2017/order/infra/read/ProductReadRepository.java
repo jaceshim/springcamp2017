@@ -1,6 +1,6 @@
 package jace.shim.springcamp2017.order.infra.read;
 
-import jace.shim.springcamp2017.order.model.read.Product;
+import jace.shim.springcamp2017.product.model.read.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ProductReadRepository extends JpaRepository<Product, Long> {
+
+	Product findByProductId(Long productId);
 }

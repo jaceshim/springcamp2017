@@ -3,12 +3,14 @@ package jace.shim.springcamp2017.product.infra;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.core.event.Event;
-import jace.shim.springcamp2017.core.event.EventListener;
+import jace.shim.springcamp2017.core.event.EventProjector;
 import jace.shim.springcamp2017.core.event.EventPublisher;
 import jace.shim.springcamp2017.core.event.EventStore;
+import jace.shim.springcamp2017.product.model.event.ProductRawEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -27,19 +29,19 @@ public class ProductEventStore implements EventStore<Long> {
 	private ProductEventStoreRepository productEventStoreRepository;
 
 	@Autowired
-	private ObjectMapper objectMapper;
-
-	@Autowired
 	private EventPublisher eventPublisher;
 
 	@Autowired
-	private EventListener eventListener;
+	private EventProjector eventProjector;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Override
+	@Transactional
 	public void saveEvents(final Long identifier, Long expectedVersion, final List<Event> events) {
 		// 신규 등록이 아닌 경우 version확인 후 처리
 		if (expectedVersion > 0) {
-
 			List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifier(identifier);
 			Long actualVersion = productRawEvents.stream()
 				.sorted(Comparator.comparing(ProductRawEvent::getVersion))
@@ -65,15 +67,15 @@ public class ProductEventStore implements EventStore<Long> {
 
 			expectedVersion++;
 			LocalDateTime now = LocalDateTime.now();
-			ProductRawEvent productRawEvent = new ProductRawEvent(identifier, type, expectedVersion, payload, now);
+			ProductRawEvent rawEvent = new ProductRawEvent(identifier, type, expectedVersion, payload, now);
 
-			productEventStoreRepository.save(productRawEvent);
+			productEventStoreRepository.save(rawEvent);
 
 			// event 발행
-			eventPublisher.publish(productRawEvent);
+			eventPublisher.publish(rawEvent);
 
 			// event projection
-			eventListener.handle(event);
+			eventProjector.handle(event);
 		}
 	}
 

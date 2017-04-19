@@ -2,11 +2,19 @@ package jace.shim.springcamp2017.product.infra;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.core.event.AbstractEventListener;
-import jace.shim.springcamp2017.product.model.event.*;
+import jace.shim.springcamp2017.core.event.Event;
+import jace.shim.springcamp2017.order.model.OrderItem;
+import jace.shim.springcamp2017.order.model.event.OrderCreated;
+import jace.shim.springcamp2017.product.model.command.ProductCommand;
+import jace.shim.springcamp2017.product.model.event.ProductRawEvent;
+import jace.shim.springcamp2017.product.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.Set;
 
 /**
  * Created by jaceshim on 2017. 3. 28..
@@ -18,87 +26,33 @@ public class ProductEventListener extends AbstractEventListener {
 	private JdbcTemplate jdbcTemplate;
 
 	@Autowired
+	private ProductService productService;
+
+	@Autowired
 	private ObjectMapper objectMapper;
 
-	/**
-	 * 상품 등록 projection
-	 * @param event
-	 */
-	public void apply(ProductCreated event) {
-		StringBuilder query = new StringBuilder();
-		query.append("INSERT INTO product (");
-		query.append(" productId, name, price, quantity, description, created ");
-		query.append(") VALUES ( ");
-		query.append(" ?, ?, ?, ?, ?, ? ) ");
+	@org.springframework.kafka.annotation.KafkaListener(id = "order-consumer-group", topics = "order-event-topic")
+	public void orderEventListener(String message) throws IOException, ClassNotFoundException {
+		log.debug("receive message from order : {}", message);
 
-		jdbcTemplate.update(query.toString(),
-			event.getProductId(),
-			event.getName(),
-			event.getPrice(),
-			event.getQuantity(),
-			event.getDescription(),
-			convertLocalDateTimeToTimestamp(event.getCreated()));
+		ProductRawEvent rawEvent = objectMapper.readValue(message, ProductRawEvent.class);
+		final Class<?> eventType = Class.forName(rawEvent.getType());
+		final Event event = (Event) objectMapper.readValue(rawEvent.getPayload(), eventType);
+
+		this.handle(event);
 	}
 
 	/**
-	 * 상품 명 변경 projection
+	 * 주문 이벤트 처리 - 상품재고 차감
 	 *
 	 * @param event
 	 */
-	public void apply(ProductNameChanged event) {
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE product ");
-		query.append(" SET name = ? ");
-		query.append("    ,updated = ?");
-		query.append("WHERE productId = ?");
-
-		jdbcTemplate.update(query.toString(), event.getName(), convertLocalDateTimeToTimestamp(event.getUpdated()), event.getProductId());
+	public void execute(OrderCreated event) {
+		// todo 상품재고 수량 차감 이벤트를 발생 시켜야 하는데.
+		final Set<OrderItem> orderItems = event.getOrderItems();
+		for (OrderItem orderItem : orderItems) {
+			ProductCommand.DecreaseQuantity productDecreaseQuantityCommand = new ProductCommand.DecreaseQuantity(orderItem.getQuantity());
+			productService.decreaseQuantity(orderItem.getProduct().getProductId(), productDecreaseQuantityCommand);
+		}
 	}
-
-	/**
-	 * 상품 가격 변경 projection
-	 *
-	 * @param event
-	 */
-	public void apply(ProductPriceChanged event) {
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE product ");
-		query.append(" SET price = ? ");
-		query.append("    ,updated = ?");
-		query.append("WHERE productId = ?");
-
-		jdbcTemplate.update(query.toString(), event.getPrice(), convertLocalDateTimeToTimestamp(event.getUpdated()), event.getProductId());
-	}
-
-	/**
-	 * 상품 수량 감소 projection
-	 *
-	 * @param event
-	 */
-	public void apply(ProductQuantityDecreased event) {
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE product ");
-		query.append(" SET quantity = (quantity - ? ) ");
-		query.append("    ,updated = ?");
-		query.append("WHERE productId = ?");
-
-		jdbcTemplate.update(query.toString(), event.getQuantity(), convertLocalDateTimeToTimestamp(event.getUpdated()), event.getProductId());
-	}
-
-	/**
-	 * 상품 수량 증가 projection
-	 *
-	 * @param event
-	 */
-	public void apply(ProductQuantityIncreased event) {
-		StringBuilder query = new StringBuilder();
-		query.append("UPDATE product ");
-		query.append(" SET quantity = (quantity + ? ) ");
-		query.append("    ,updated = ?");
-		query.append("WHERE productId = ?");
-
-		jdbcTemplate.update(query.toString(), event.getQuantity(), convertLocalDateTimeToTimestamp(event.getUpdated()), event.getProductId());
-	}
-
-
 }

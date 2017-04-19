@@ -3,4 +3,7 @@ include 'core'
 include 'member'
 include 'product'
 include 'order'
+include 'product-domain'
+include 'order-domain'
+include 'member-domain'
 

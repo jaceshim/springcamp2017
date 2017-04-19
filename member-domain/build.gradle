@@ -1,0 +1,22 @@
+apply plugin: 'org.springframework.boot'
+
+jar {
+    baseName = 'member-domain'
+    version = '0.0.1-SNAPSHOT'
+}
+
+repositories {
+    maven {
+        url "http://repo.hortonworks.com/content/repositories/releases/"
+    }
+}
+
+dependencies {
+    compile project(':core')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('org.springframework.boot:spring-boot-starter-jdbc')
+    compile('org.springframework.boot:spring-boot-starter-web')
+
+    // for LocalDateTime ISO format to json
+    compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.6')
+}

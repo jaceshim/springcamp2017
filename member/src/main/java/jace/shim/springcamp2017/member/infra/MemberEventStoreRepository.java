@@ -1,5 +1,6 @@
 package jace.shim.springcamp2017.member.infra;
 
+import jace.shim.springcamp2017.member.model.event.MemberRawEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,7 +1,6 @@
 package jace.shim.springcamp2017.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.collect.Lists;
 import jace.shim.springcamp2017.core.event.Event;
 import jace.shim.springcamp2017.core.exception.EventApplyException;
 import lombok.extern.slf4j.Slf4j;
@@ -9,25 +8,28 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by jaceshim on 2017. 3. 5..
  */
 @Slf4j
-@JsonIgnoreProperties({"identifier", "expectedVersion", "uncommittedChanges"})
+@JsonIgnoreProperties({ "identifier", "expectedVersion", "uncommittedChanges" })
 public abstract class AggregateRoot<ID> implements Serializable {
-
-	private static final String APPLY_METHOD_NAME = "apply";
 
 	private ID identifier;
 
-	private List<Event> changeEvents = Lists.newArrayList();
-
 	private Long expectedVersion = 0L;
+
+	private List<Event> changeEvents = new ArrayList<>();
 
 	public AggregateRoot(ID identifier) {
 		this.identifier = identifier;
+	}
+
+	public AggregateRoot() {
+
 	}
 
 	public void markChangesAsCommitted() {
@@ -57,6 +59,7 @@ public abstract class AggregateRoot<ID> implements Serializable {
 		applyChange(change, true);
 	}
 
+	private static final String APPLY_METHOD_NAME = "apply";
 	private void applyChange(Event event, boolean isNew) {
 		Method method;
 		try {
@@ -69,7 +72,8 @@ public abstract class AggregateRoot<ID> implements Serializable {
 			if (isNew) {
 				changeEvents.add(event);
 			}
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+		} catch (IllegalAccessException | IllegalArgumentException
+			| InvocationTargetException | NoSuchMethodException e) {
 			log.error(e.getMessage(), e);
 			throw new EventApplyException(e.getMessage(), e);
 		}

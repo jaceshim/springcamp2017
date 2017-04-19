@@ -33,6 +33,7 @@ If you using docker then Please execute blow commands.
 * docker run --name redis -d --restart=always -publish 6379:6379 sameersbn/redis:latest
 * docker run --name test-mysql -p 3306:3306 -v {your_mysqld_charset.cnf_file_directory}:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=root -d mysql
 	> mysqld_charset.cnf
+	
 		[mysqld]
 		character_set_server=utf8
 		character_set_filesystem=utf8

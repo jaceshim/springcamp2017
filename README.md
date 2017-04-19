@@ -25,3 +25,22 @@ eventsourcing &amp; cqrs demo project for springcamp2017
 	* e.g. cd member; ../gradlew bootRun
 
 2. If you ran each applications then You can access the URL ( http://member.jaceshim.com:10001/regist )
+
+## Additional Information
+If you using docker then Please execute blow commands.
+* docker run -d -p 2181:2181 --name zookeeper  dockerkafka/zookeeper
+* docker run -d --name kafka -p 9092:9092 --link zookeeper:zookeeper -e KAFKA_ADVERTISED_HOST_NAME=localhost -e KAFKA_ADVERTISED_PORT=9092 ches/kafka
+* docker run --name redis -d --restart=always -publish 6379:6379 sameersbn/redis:latest
+* docker run --name test-mysql -p 3306:3306 -v {your_mysqld_charset.cnf_file_directory}:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=root -d mysql
+	> mysqld_charset.cnf
+		[mysqld]
+		character_set_server=utf8
+		character_set_filesystem=utf8
+		collation-server=utf8_general_ci
+		init-connect='SET NAMES utf8'
+		init_connect='SET collation_connection = utf8_general_ci'
+		skip-character-set-client-handshake
+     
+     
+     
+     

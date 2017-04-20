@@ -4,6 +4,7 @@ import jace.shim.springcamp2017.core.event.AbstractEventProjector;
 import jace.shim.springcamp2017.member.model.event.*;
 import jace.shim.springcamp2017.order.model.OrderItem;
 import jace.shim.springcamp2017.order.model.event.OrderCreated;
+import jace.shim.springcamp2017.product.model.event.ProductCreated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,6 +21,28 @@ public class MemberEventProjector extends AbstractEventProjector {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+
+	/**
+	 * 상품주문 projection
+	 * @param event
+	 */
+	public void execute(ProductCreated event) {
+		// query모델은 발생한 이벤트를 선택적으로 취해서 마음데로 query전용 table을 구성하고 관리할 수 있다.
+		// 즉 실제 product 도메인의 모든정보를 관리할 필요가 없고 ( 이유도 없다 ) member 도메인에서 필요한 정보만 선택해서 테이블로 관리하면 된다
+		StringBuilder query = new StringBuilder();
+		query.append("INSERT INTO product (");
+		query.append(" productId, name, price, imagePath, description ");
+		query.append(") VALUES ( ");
+		query.append(" ?, ?, ?, ?, ?) ");
+
+		jdbcTemplate.update(query.toString(),
+			event.getProductId(),
+			event.getName(),
+			event.getPrice(),
+			event.getImagePath(),
+			event.getDescription());
+	}
+
 	/**
 	 * 상품주문 projection
 	 * @param event

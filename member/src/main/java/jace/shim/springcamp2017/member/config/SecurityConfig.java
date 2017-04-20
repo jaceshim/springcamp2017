@@ -11,11 +11,13 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.ServletException;
@@ -55,6 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER);
 
 		http.authorizeRequests()
+			.antMatchers(HttpMethod.GET,"/").permitAll()
 			.antMatchers(HttpMethod.GET,"/login").permitAll()
 			.antMatchers(HttpMethod.POST,"/login").permitAll()
 			.antMatchers(HttpMethod.GET,"/regist").permitAll()
@@ -73,7 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.invalidateHttpSession(true)
 			.clearAuthentication(true)
 			.logoutUrl("/logout")
-			.logoutSuccessUrl("/login");
+			.logoutSuccessUrl("/");
 	}
 
 	@Bean
@@ -86,6 +89,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return new LoginFailureHandler();
 	}
 
+	@Bean
+	public AuthenticationSuccessHandler authenticationSuccessHandler() {
+		return new LoginSuccessHandle();
+	}
+
 	@Slf4j
 	public static class LoginFailureHandler implements AuthenticationFailureHandler {
 
@@ -95,6 +103,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 			log.error(exception.getMessage(), exception);
 			response.sendRedirect(request.getContextPath() + "/login?error=" + exception.getMessage());
+		}
+	}
+
+	@Slf4j
+	public static class LoginSuccessHandle implements AuthenticationSuccessHandler {
+
+		@Override
+		public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException, ServletException {
+			response.sendRedirect(request.getContextPath() + "/mypage");
 		}
 	}
 }

@@ -27,7 +27,9 @@ dependencies {
     compile("org.springframework.session:spring-session-data-redis")
     compile('redis.clients:jedis:2.9.0')
 
-    compile('pl.allegro.tech.boot:handlebars-spring-boot-starter:0.2.15')
+    // for Thymleaf
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile('net.sourceforge.nekohtml:nekohtml:1.9.21')
 
     // for LocalDateTime ISO format to json
     compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.6')

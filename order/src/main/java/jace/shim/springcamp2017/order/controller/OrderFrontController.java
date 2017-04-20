@@ -1,6 +1,5 @@
 package jace.shim.springcamp2017.order.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.member.model.read.Member;
 import jace.shim.springcamp2017.order.exception.InvalidRequestException;
@@ -8,7 +7,7 @@ import jace.shim.springcamp2017.order.exception.MemberNotSignedException;
 import jace.shim.springcamp2017.order.infra.read.ProductReadRepository;
 import jace.shim.springcamp2017.order.infra.remote.MemberInfoRepository;
 import jace.shim.springcamp2017.order.model.command.OrderCommand;
-import jace.shim.springcamp2017.order.model.read.Order;
+import jace.shim.springcamp2017.product.exception.ProductNotFoundException;
 import jace.shim.springcamp2017.product.model.read.Product;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
@@ -50,6 +48,9 @@ public class OrderFrontController {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	@Autowired
+	private RestTemplate restTemplate;
+
 	@RequestMapping(value = "/products", method = RequestMethod.GET)
 	public String getProducts(Model model) {
 
@@ -77,8 +78,13 @@ public class OrderFrontController {
 	}
 
 	@RequestMapping(value = "/orders", method = RequestMethod.POST)
-	public ResponseEntity<Order> createOrder(@RequestBody @Valid OrderCommand.CreateOrder orderCreateCommand,
+	public ResponseEntity<Long> createOrder(@RequestBody @Valid OrderCommand.CreateOrder orderCreateCommand,
 		@CookieValue(value = "SESSION") String sessionId, BindingResult bindingResult) {
+
+		if (sessionId == null || sessionId.isEmpty()) {
+			throw new MemberNotSignedException("Member session not found!!");
+		}
+
 		if (bindingResult.hasErrors()) {
 			throw new InvalidRequestException("Invalid Parameter!", bindingResult);
 		}
@@ -94,14 +100,13 @@ public class OrderFrontController {
 			= new OrderCommand.CreateOrder(member.getId(), orderCreateCommand.getOrderItems(), orderCreateCommand.getDelivery());
 
 		try {
-			final RestTemplate restTemplate = new RestTemplate();
 			String orderJson = objectMapper.writeValueAsString(params);
 			HttpEntity<String> formEntity = new HttpEntity<>(orderJson, headers);
-			ResponseEntity<Order> response = restTemplate.exchange(ORDER_API, HttpMethod.POST, formEntity, Order.class);
+			ResponseEntity<Long> response = restTemplate.exchange(ORDER_API, HttpMethod.POST, formEntity, Long.class);
 			return response;
-		} catch (HttpClientErrorException | JsonProcessingException e) {
-			log.error("Order fail : error message={}", e.getMessage());
-			return new ResponseEntity<>(new Order(null), HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			log.error("Order fail : error message={}", e.getMessage(), e);
+			return new ResponseEntity<>(0L, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -114,8 +119,12 @@ public class OrderFrontController {
 	private List<CheckoutItem> parseCheckoutItems(List<String> checkoutItems) {
 		return checkoutItems.stream().filter(item -> item != null && !item.isEmpty()).map(item -> {
 			final String[] itemAttrs = item.split(ITEM_DELIM);
-			final Product product = productReadRepository.findByProductId(Long.parseLong(itemAttrs[0]));
-			return new CheckoutItem(product, Integer.parseInt(itemAttrs[1]));
+			final Long productId = Long.parseLong(itemAttrs[0]);
+			final Product product = productReadRepository.findByProductId(productId);
+			if (product != null) {
+				return new CheckoutItem(product, Integer.parseInt(itemAttrs[1]));
+			}
+			throw new ProductNotFoundException(String.format("%d is not found", productId));
 		}).collect(Collectors.toList());
 	}
 

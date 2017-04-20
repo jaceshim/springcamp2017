@@ -25,7 +25,7 @@ public abstract class AbstractEventListener implements EventListener {
 				method.invoke(this, event);
 			}
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
-			log.error(e.getMessage(), e);
+			log.warn(e.getMessage(), e);
 			//throw new EventListenerNotApplyException(e.getMessage(), e);
 		}
 	}

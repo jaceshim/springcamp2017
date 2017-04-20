@@ -16,6 +16,16 @@ CREATE TABLE `member` (
   PRIMARY KEY (`seq`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
+CREATE TABLE `product` (
+  `seq` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `productId` bigint(20) NOT NULL,
+  `name` varchar(100) NOT NULL DEFAULT '',
+  `price` int(11) NOT NULL DEFAULT '0',
+  `imagePath` varchar(1000) NOT NULL DEFAULT '',
+  `description` text,
+  PRIMARY KEY (`seq`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+
 CREATE TABLE `order` (
   `orderId` bigint(11) unsigned NOT NULL,
   `created` datetime DEFAULT NULL,

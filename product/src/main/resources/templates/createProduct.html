@@ -1,0 +1,167 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- Website CSS style -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+
+	<!-- Website Font style -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+	<!-- Google Fonts -->
+	<link href='https://fonts.googleapis.com/css?family=Passion+One' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
+
+	<style>
+		body {
+			padding-top: 70px; /* Required padding for .navbar-fixed-top. Remove if using .navbar-static-top. Change if height of navigation changes. */
+		}
+
+		ul.dev-product-images {
+			list-style: none;
+		}
+
+		ul.dev-product-images li {
+			display: inline-block;
+		}
+
+		.dev-product-image {
+			width: 60px;
+			height: 60px;
+		}
+
+		.dev-product-image:hover {
+			border: 1px solid #00c4ff;
+		}
+
+	</style>
+	<title>상품 등록</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#">Jace's SHOP</a>
+		</div>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="active">
+					<a href="http://product.jaceshim.com:30001/products?type=createProduct">상품등록</a>
+				</li>
+				<li>
+					<a href="http://product.jaceshim.com:30001/products">상품목록</a>
+				</li>
+				<li>
+					<a href="http://member.jaceshim.com:10001/mypage">마이페이지</a>
+				</li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="http://member.jaceshim.com:10001/logout">로그아웃</a></li>
+			</ul>
+		</div>
+		<!-- /.navbar-collapse -->
+	</div>
+	<!-- /.container -->
+</nav>
+<div class="container">
+	<div class="row">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<span class=""></span>상품 등록</div>
+			<div class="panel-body">
+				<form class="form-horizontal" role="form" method="post">
+					<div class="form-group">
+						<label for="name" class="col-sm-3 control-label">상품명</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="name" name="name" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="price" class="col-sm-3 control-label">가격</label>
+						<div class="col-sm-9">
+							<input type="number" class="form-control" id="price" name="price" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="quantity" class="col-sm-3 control-label">수량</label>
+						<div class="col-sm-9">
+							<input type="number" class="form-control" id="quantity" name="quantity" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">이미지 경로</label>
+						<div class="col-sm-9">
+							<ul class="dev-product-images">
+								<li th:each="image : ${images}">
+									<img src="images/${image}" class="dev-product-image">
+								</li>
+							</ul>
+							<input type="text" class="form-control" id="imagePath" name="imagePath" required readonly="readonly">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-3 control-label">설명</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="description" name="description" required>
+						</div>
+					</div>
+					<div class="form-group last">
+						<div class="col-sm-offset-3 col-sm-9">
+							<button type="submit" class="btn btn-success btn-sm">등록</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script>
+	$(document).ready(function() {
+
+		$('.dev-product-image').click(function() {
+			var imgPath = $(this).attr("src");
+			$('#imagePath').val(imgPath);
+		});
+
+		$('form').submit(function() {
+			var formData = {
+				"name": $("#name").val(),
+				"price": $("#price").val(),
+				"quantity": $("#quantity").val(),
+				"imagePath": $("#imagePath").val(),
+				"description": $("#description").val()
+			}
+
+			$.ajax({
+				url: '/api/products',
+				data: JSON.stringify(formData),
+				contentType: 'application/json; charset=utf-8',
+				dataType: 'json',
+				type: 'PUT',
+				success: function(data) {
+					alert("정상적으로 등록되었습니다")
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					alert(textStatus);
+				}
+			});
+
+			return false;
+		});
+	});
+</script>
+</body>
+</html>

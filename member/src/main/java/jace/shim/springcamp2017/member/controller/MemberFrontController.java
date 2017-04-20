@@ -50,6 +50,11 @@ public class MemberFrontController {
 	@Autowired
 	private MemberService memberService;
 
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String index() {
+		return "index";
+	}
+
 	@RequestMapping(value = "/regist", method = RequestMethod.GET)
 	public String signup(Model model) {
 		return "regist";
@@ -101,9 +106,9 @@ public class MemberFrontController {
 
 		final String memberId = loginUser.getUsername();
 
-		orderReadRepository.findByMemberId(memberId);
+		final List<Order> orders = orderReadRepository.findByMemberId(memberId);
 
-		return null;
+		return new ResponseEntity<>(orders, HttpStatus.OK);
 	}
 
 }

@@ -58,7 +58,7 @@ public class OrderEventStore implements EventStore<Long> {
 
 			try {
 				payload = objectMapper.writeValueAsString(event);
-				log.debug("-> payload : {}", payload);
+				log.debug("-> event payload : {}", payload);
 			} catch (JsonProcessingException e) {
 				log.error(e.getMessage(), e);
 			}

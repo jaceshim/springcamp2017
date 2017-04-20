@@ -69,6 +69,13 @@ public class Product {
 		this.inventory = inventory;
 	}
 
+	public Product(Long productId, String name, int price, String imagePath) {
+		this.productId = productId;
+		this.name = name;
+		this.price = price;
+		this.imagePath = imagePath;
+	}
+
 	public String getFormatPrice() {
 		DecimalFormat df = new DecimalFormat("#,##0");
 		return df.format(this.price);

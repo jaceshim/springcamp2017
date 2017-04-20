@@ -3,6 +3,7 @@ package jace.shim.springcamp2017.order.infra;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jace.shim.springcamp2017.core.event.AbstractEventListener;
 import jace.shim.springcamp2017.core.event.Event;
+import jace.shim.springcamp2017.core.event.EventProjector;
 import jace.shim.springcamp2017.order.model.event.OrderRawEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ public class OrderEventListener extends AbstractEventListener {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	@Autowired
+	EventProjector eventProjector;
+
 	@org.springframework.kafka.annotation.KafkaListener(id = "product-consumer-group", topics = "product-event-topic")
 	public void productEventListener(String message) {
 		log.debug("receive message : {}", message);
@@ -35,4 +39,6 @@ public class OrderEventListener extends AbstractEventListener {
 			log.warn(e.getMessage(), e);
 		}
 	}
+
+
 }

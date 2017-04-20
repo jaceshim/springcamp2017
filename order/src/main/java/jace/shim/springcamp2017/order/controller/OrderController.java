@@ -2,10 +2,9 @@ package jace.shim.springcamp2017.order.controller;
 
 import jace.shim.springcamp2017.order.error.ErrorResource;
 import jace.shim.springcamp2017.order.error.FieldErrorResource;
-import jace.shim.springcamp2017.order.model.command.OrderCommand;
-import jace.shim.springcamp2017.order.model.read.Order;
-import jace.shim.springcamp2017.order.service.OrderService;
 import jace.shim.springcamp2017.order.exception.InvalidRequestException;
+import jace.shim.springcamp2017.order.model.command.OrderCommand;
+import jace.shim.springcamp2017.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,14 +29,14 @@ public class OrderController {
 	private OrderService orderService;
 
 	@RequestMapping(value = "/orders", method = RequestMethod.POST)
-	public ResponseEntity<Order> createOrder(@RequestBody @Valid OrderCommand.CreateOrder orderCreateCommand, BindingResult bindingResult) {
+	public ResponseEntity<Long> createOrder(@RequestBody @Valid OrderCommand.CreateOrder orderCreateCommand, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			throw new InvalidRequestException("Invalid Parameter!", bindingResult);
 		}
 
 		final jace.shim.springcamp2017.order.model.Order order = orderService.createProduct(orderCreateCommand);
 
-		return new ResponseEntity<>(new Order(order.getOrderId()), HttpStatus.CREATED);
+		return new ResponseEntity<>(order.getOrderId(), HttpStatus.CREATED);
 	}
 
 	@ExceptionHandler(InvalidRequestException.class)

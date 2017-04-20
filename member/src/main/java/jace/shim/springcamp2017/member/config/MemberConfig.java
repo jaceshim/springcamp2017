@@ -66,5 +66,4 @@ public class MemberConfig implements EmbeddedServletContainerCustomizer {
 	public JedisConnectionFactory jedisConnectionFactory() {
 		return new JedisConnectionFactory();
 	}
-
 }

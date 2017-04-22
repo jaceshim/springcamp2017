@@ -49,8 +49,8 @@ public abstract class AggregateRoot<ID> implements Serializable {
 	}
 
 	public void replay(List<Event> changes) {
-		for (Event change : changes) {
-			applyChange(change, false);
+		for (Event event : changes) {
+			applyChange(event, false);
 			this.expectedVersion++;
 		}
 	}

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * Created by jaceshim on 2017. 4. 19..
  */
 @Slf4j
-public class AbstractEventProjector implements EventProjector {
+public abstract class AbstractEventProjector implements EventProjector {
 
 	protected static String APPLY_METHOD_NAME = "execute";
 

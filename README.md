@@ -16,7 +16,7 @@ eventsourcing &amp; cqrs demo project for springcamp2017
 3. create database & table ( default user is root )
 	* execute script into each service directory/scripts
 	* e.g. member/scripts/create_database_table.sql
-4. Add hosts information to hosts file on your Operation System.
+4. Add hosts information to hosts file on your Operating System.
 	* 127.0.0.1 member.jaceshim.com order.jaceshim.com product.jaceshim.com
 
 ## Run

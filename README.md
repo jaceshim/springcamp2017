@@ -30,7 +30,7 @@ eventsourcing &amp; cqrs demo project for springcamp2017
 If you using docker then Please execute blow commands.
 * docker run -d -p 2181:2181 --name zookeeper  dockerkafka/zookeeper
 * docker run -d --name kafka -p 9092:9092 --link zookeeper:zookeeper -e KAFKA_ADVERTISED_HOST_NAME=localhost -e KAFKA_ADVERTISED_PORT=9092 ches/kafka
-* docker run --name redis -d --restart=always -publish 6379:6379 sameersbn/redis:latest
+* docker run --name redis -d --restart=always --publish 6379:6379 sameersbn/redis:latest
 * docker run --name mysql -p 3306:3306 -v {your_mysqld_charset.cnf_file_directory}:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=root -d mysql
 	> mysqld_charset.cnf
 	

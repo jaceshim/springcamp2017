@@ -27,5 +27,7 @@ CREATE TABLE `raw_event` (
 
 
 CREATE TABLE `sequence` (
-  `orderId` bigint(20) NOT NULL
+  `productId` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `sequence` (productId) VALUES (0);

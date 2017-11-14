@@ -22,6 +22,7 @@ public class ProductEventProjector extends AbstractEventProjector {
 	 * @param event
 	 */
 	public void execute(ProductCreated event) {
+		log.debug("event : {}", event.toString());
 		StringBuilder query = new StringBuilder();
 		query.append("INSERT INTO product (");
 		query.append(" productId, name, price, inventory, imagePath, description, created ");

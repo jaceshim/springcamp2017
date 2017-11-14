@@ -34,7 +34,9 @@ public class OrderEventListener extends AbstractEventListener {
 			final Class<?> eventType = Class.forName(rawEvent.getType());
 			final Event event = (Event) objectMapper.readValue(rawEvent.getPayload(), eventType);
 
-			this.handle(event);
+			// this.handle(event);
+
+			eventProjector.handle(event);
 		} catch (Exception e) {
 			log.warn(e.getMessage(), e);
 		}

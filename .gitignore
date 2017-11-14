@@ -12,3 +12,7 @@
 /product/build/
 /member/build/
 /order/build/
+/order-domain/build/
+/product-domain/build/
+/member-domain/build/
+

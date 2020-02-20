@@ -44,7 +44,7 @@ public class ProductEventStore implements EventStore<Long> {
 		if (expectedVersion > 0) {
 			List<ProductRawEvent> productRawEvents = productEventStoreRepository.findByIdentifier(identifier);
 			Long actualVersion = productRawEvents.stream()
-				.sorted(Comparator.comparing(ProductRawEvent::getVersion))
+				.sorted(Comparator.comparing(ProductRawEvent::getVersion).reversed())
 				.findFirst().map(ProductRawEvent::getVersion)
 				.orElse(-1L);
 

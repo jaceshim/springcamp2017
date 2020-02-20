@@ -42,7 +42,7 @@ public class OrderEventStore implements EventStore<Long> {
 		if (expectedVersion > 0) {
 			List<OrderRawEvent> rawEvents = orderEventStoreRepository.findByIdentifier(identifier);
 			Long actualVersion = rawEvents.stream()
-				.sorted(Comparator.comparing(OrderRawEvent::getVersion))
+				.sorted(Comparator.comparing(OrderRawEvent::getVersion).reversed())
 				.findFirst().map(OrderRawEvent::getVersion)
 				.orElse(-1L);
 
